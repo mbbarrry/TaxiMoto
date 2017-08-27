@@ -1,4 +1,7 @@
 {
-  "name": "TaxiMoto",
-  "displayName": "TaxiMoto"
+    "name": "TaxiMoto",
+    "displayName": "TaxiMoto",
+    "expo": {
+        "sdkVersion": "19.0.0"
+    }
 }
