@@ -19,10 +19,10 @@ const mapNavigationStateParamsToProps = (SomeComponent) => {
     }
 }
 
-const SimpleApp = StackNavigator({
+const Router = StackNavigator({
   Home: { screen: mapNavigationStateParamsToProps(HomeScreen) },
   Chat: { screen: mapNavigationStateParamsToProps(ChatScreen) },
   NewScreen: { screen: mapNavigationStateParamsToProps(NewScreen) },
 });
 
-export default SimpleApp
+export default Router
