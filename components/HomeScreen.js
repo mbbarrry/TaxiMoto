@@ -15,7 +15,8 @@ class HomeScreen extends React.Component {
     return (
       <View>
     	<Text>Hello, Navigation! hei</Text>
-    	<Button onPress={() => navigate('Chat')} title="Chat with Lucy"/>
+      <Button onPress={() => navigate('Chat')} title="Chat with Lucy"/>
+    	<Button onPress={() => navigate('NewScreen')} title="Go to new screen"/>
       </View>
     );
   }

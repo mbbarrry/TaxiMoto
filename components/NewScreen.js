@@ -5,14 +5,14 @@ import {
   View,
 } from 'react-native';
 
-export default class ChatScreen extends React.Component {
+export default class NewScreen extends React.Component {
   static navigationOptions = {
-    title: 'Chat with Lucy',
+    title: 'asfasd',
   };
   render() {
     return (
       <View>
-        <Text>Chat with Barry in ChatScreen</Text>
+        <Text>Chat with wildan in new screen</Text>
       </View>
     );
   }
