@@ -5,14 +5,14 @@ import {
   View,
 } from 'react-native';
 
-export default class NewScreen extends React.Component {
+export default class TemplateScreen extends React.Component {
   static navigationOptions = {
-    title: 'asfasd',
+    title: 'Template Screen',
   };
   render() {
     return (
       <View>
-        <Text>Chat with wildan in new screen</Text>
+        <Text>This is a template screen</Text>
       </View>
     );
   }

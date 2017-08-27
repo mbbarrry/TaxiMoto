@@ -5,7 +5,7 @@ import {
 
 import HomeScreen from './HomeScreen'
 import ChatScreen from './ChatScreen'
-import NewScreen from './NewScreen'
+import LoginScreen from './LoginScreen'
 
 import { StackNavigator } from 'react-navigation';
 
@@ -22,7 +22,7 @@ const mapNavigationStateParamsToProps = (SomeComponent) => {
 const Router = StackNavigator({
   Home: { screen: mapNavigationStateParamsToProps(HomeScreen) },
   Chat: { screen: mapNavigationStateParamsToProps(ChatScreen) },
-  NewScreen: { screen: mapNavigationStateParamsToProps(NewScreen) },
+  LoginScreen: { screen: mapNavigationStateParamsToProps(LoginScreen) },
 });
 
 export default Router
