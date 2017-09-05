@@ -1,4 +1,4 @@
-export default Login {
+export default class Login {
 	function authenticate() {
 		return true;
 	}

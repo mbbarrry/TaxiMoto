@@ -3,8 +3,10 @@ import {
   AppRegistry,
 } from 'react-native';
 
-import HomeScreen from './HomeScreen'
-import ChatScreen from './ChatScreen'
+
+
+import Main from './Main'
+import RegistrationScreen from './RegistrationScreen'
 import LoginScreen from './LoginScreen'
 
 import { StackNavigator } from 'react-navigation';
@@ -20,8 +22,8 @@ const mapNavigationStateParamsToProps = (SomeComponent) => {
 }
 
 const Router = StackNavigator({
-  Home: { screen: mapNavigationStateParamsToProps(HomeScreen) },
-  Chat: { screen: mapNavigationStateParamsToProps(ChatScreen) },
+  Home: { screen: mapNavigationStateParamsToProps(Main) },
+  RegistrationScreen: { screen : mapNavigationStateParamsToProps(RegistrationScreen)},
   LoginScreen: { screen: mapNavigationStateParamsToProps(LoginScreen) },
 });
 

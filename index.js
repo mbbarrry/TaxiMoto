@@ -8,13 +8,10 @@ import React, { Component } from 'react';
 import {
   AppRegistry,
   StyleSheet,
+  Text,
   View
 } from 'react-native';
 
 import Router from './components/Router'
-
-import Config from './shared/Config'
-
-Config.init();
 
 AppRegistry.registerComponent('TaxiMoto', () => Router);
