@@ -15,3 +15,5 @@ import {
 import Router from './components/Router'
 
 AppRegistry.registerComponent('TaxiMoto', () => Router);
+
+

@@ -11,10 +11,26 @@ import {
   View
 } from 'react-native';
 
-import Router from './components/Router'
+import CustomerHomeScreen from './CustomerComponents/CustomerHomeScreen'
+
+//import Router from './components/Router'
 
 import Config from './shared/Config'
 
 Config.init();
+export default class TaxiMoto extends Component {
+ 
 
-AppRegistry.registerComponent('TaxiMoto', () => Router);
+
+render() {
+    return (
+      <CustomerHomeScreen />
+    );
+  }
+}
+
+// skip this line if using Create React Native App
+
+//AppRegistry.registerComponent('TaxiMoto', () => Router);
+
+AppRegistry.registerComponent('TaxiMoto', () => TaxiMoto);

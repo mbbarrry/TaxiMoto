@@ -26,30 +26,22 @@ export default class RegistrationScreen extends React.Component {
 constructor(props){
   super(props);
 
-  Db.set('this/is/path', {mobile:'23234', name: 'barry allen'});
-
   this.state={
     username:'',
     password:''
   };
 }
 
-ComponentDidMount(){
-  
-  this.dataForm.on('child_added', (dataSnapshot) => {
-    this.dataForm.push({
-     id: dataSnapshot.key(),
-     Username: dataSnapshot.val() } );
-  });
-
-}
-
 sendDataForm (){
-  if (this.state.username !== ''){
-    this.dataForm.push({
-      username: this.state.username
-    });
+  if ((this.state.username !== '') && (this.state.password !=='')) {
+    Db.set('users/' + this.state.username + '/details', {
+    username: this.state.username,
+    password: this.state.password,
+    verified: true
+    
+  });
     this.setState({
+      ...this.state,
       username: ''
     });
 }
@@ -68,18 +60,21 @@ sendDataForm (){
                returnKeyType="next"
                autoCapitalize="none"
                autoCorrect={false}
-               onChangeText={(Text) => this.setState({username: text})}
+               onChangeText={(text) => this.setState({username: text})}
                value={this.state.username}
               />
             </Item>
 
     <Item>
               <Icon name="lock" />
-              <Input placeholder="Passwrod" 
+              <Input placeholder="Password" 
                returnKeyType="next"
                autoCapitalize="none"
                autoCorrect={false}
                secureTextEntry
+               onChangeText={(text) => this.setState({password: text})}
+               value={this.state.password}
+
               />
             </Item>
 
@@ -105,9 +100,11 @@ sendDataForm (){
 
 
      </Form>
-         <TouchableOpacity  style={styles.buttonStyle1}>                    
-         <Text style={styles.buttonText1}>Sing Up
-         onPress={() => this.sendDataForm()}
+         <TouchableOpacity   
+          onPress={() => this.sendDataForm()}
+          style={styles.buttonStyle1}>                    
+         <Text style={styles.buttonText1}>
+         Sing Up
          </Text>
           </TouchableOpacity>
       
