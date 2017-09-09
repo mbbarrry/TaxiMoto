@@ -2,7 +2,6 @@ import React from 'react';
 import {StyleSheet,Alert } from "react-native";
 import { InputGroup, Text, Header, Content, Form, Item, Input, View} from 'native-base';
 import Icon from "react-native-vector-icons/FontAwesome";
-import RNGooglePlaces from "react-native-google-places";
 
 
 
@@ -29,8 +28,9 @@ prediction(){
   <InputGroup>
       <Icon name="search" size={15} color="#FF5E3A" />
       <Input  style={styles.inputSearch} 
-       placeholder="Choose pick-up location"
-        onChangeText={this.prediction.bind(this)}
+       placeholder="Pick-Up Location"
+      onChangeText={(text) => this.setState({pic: text})}
+        
       />
   </InputGroup>  
   </View>   
@@ -39,7 +39,7 @@ prediction(){
   <InputGroup>
       <Icon name="search" size={15} color="#FF5E3A" />
       <Input  style={styles.inputSearch} 
-      placeholder="Choose drop-off location"
+      placeholder="Drop-Off Location"
       onChangeText={(text) => this.setState({drop: text})}
       value={this.state.region}
       />
