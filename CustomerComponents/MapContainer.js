@@ -7,18 +7,22 @@ import {
   Dimensions,
 }
 from "react-native";
+
 import MapView from "react-native-maps";
 import SearchBox from "./SearchBox"
 import Permissions from 'react-native-permissions'
+import RNGooglePlaces from 'react-native-google-places'
+import SearchResults from './SearchResults'
 
 const {width, height}= Dimensions.get('window') 
 
-const SCREEN_HEIGHT = height
-const SCREEEN_WIDTH = width
-const ASPECT_RATIO = width/height
-const LATTITUDE_DELTA = 0.0922
-const LONGITUDE_DELTA = LATTITUDE_DELTA * ASPECT_RATIO
+const SCREEN_HEIGHT = height;
+const SCREEEN_WIDTH = width;
+const ASPECT_RATIO = width/height;
+const LATTITUDE_DELTA = 0.0922;
+const LONGITUDE_DELTA = LATTITUDE_DELTA * ASPECT_RATIO;
 
+var watchID = null;
 
 export default class MapContainer extends React.Component{
 
@@ -26,6 +30,7 @@ export default class MapContainer extends React.Component{
 constructor (props){
   super(props);
   this.state={
+    predictions:[],
     region:{
       latitude:3.253502,
       longitude:101.653326,
@@ -39,30 +44,29 @@ constructor (props){
   };
 }
 
-
 componentDidMount(){
 
-     Permissions.check('location', 'whenInUse')
-       .then(response => {
-         this.setState({ locationPermission: response })
-       });
+   //  Permissions.check('location', 'whenInUse')
+     //  .then(response => {
+      //   this.setState({ locationPermission: response })
+     //  });
    
 
-     Permissions.request('location', 'whenInUse')
-       .then(response => {
-         this.setState({ locationPermission: response })
-       });
+    // Permissions.request('location', 'whenInUse')
+     //  .then(response => {
+     //    this.setState({ locationPermission: response })
+     //  });
      
-      Alert.alert(
-      'Your location is turned off?',
-      'Please turn your location on',
-      [
-        {text: 'No', onPress: () => console.log('permission denied'), style: 'cancel'},
-        this.state.photoPermission == 'undetermined'?
-          {text: 'OK', onPress: this._requestPermission.bind(this)}
-          : {text: 'Open Settings', onPress: Permissions.openSettings}
-      ]
-    )
+     // Alert.alert(
+    //  'Your location is turned off?',
+    //  'Please turn your location on',
+    //  [
+      //  {text: 'No', onPress: () => console.log('permission denied'), style: 'cancel'},
+      //  this.state.photoPermission == 'undetermined'?
+        //  {text: 'OK', onPress: this._requestPermission.bind(this)}
+        //  : {text: 'Open Settings', onPress: Permissions.openSettings}
+     // ]
+   // )
 
 
     navigator.geolocation.getCurrentPosition((position) => {
@@ -77,34 +81,41 @@ componentDidMount(){
         longitudeDelta: LONGITUDE_DELTA
       };
       
-      this.setState({region: initialRegion});
-      this.setState({markerPosition: initialRegion});
+      this.setState({region: initialRegion, markerPosition: initialRegion});
     },
      (error) => alert(JSON.stringify(error)),
     {enableHighAccurracy: true, timeout: 20000, maximuAge: 1000}
     );
 
-   // this.watchID  = navigator.geolocation.wacthPosition((position) => {
+    this.watchID  = navigator.geolocation.wacthPosition((position) => {
 
-   //   var lat = position.coords.latitude;
-     // var long = position.coords.longitude;
+      var lat = position.coords.latitude;
+      var long = position.coords.longitude;
 
-     // var lastRegion={
-       // latitude: lat,
-       // longitude: long,
-       // latitudeDelta: LATTITUDE_DELTA,
-        //longitudeDelta: LONGITUDE_DELTA
-      //};
+      var lastRegion={
+       latitude: lat,
+       longitude: long,
+       latitudeDelta: LATTITUDE_DELTA,
+      longitudeDelta: LONGITUDE_DELTA
+      };
       
-      //this.setState({initialRegion: lastRegion});
-      //this.setState({markerPosition: lastRegion});
-  //  });
+      this.setState({initialRegion: lastRegion, markerPosition: lastRegion});
+  });
 
-//}
-
-//componentWillUnmount(){
-  //navigator.geolocation.clearWatch(this.wacthId);
 }
+
+componentWillUnmount(){
+  navigator.geolocation.clearWatch(this.wacthId);
+}
+
+displayPredictions(text){
+  RNGooglePlaces.getAutocompletePredictions(text)
+    .then((results) => this.setState({ predictions: results }))
+    .catch((error) => console.log(error.message));
+
+    // console.log('predictions', this.state.predictions);
+}
+
 
 render() {
   return(
@@ -118,7 +129,8 @@ render() {
     pinColor="green"
    />
 </MapView>
-    <SearchBox />
+    <SearchBox handleInputChange={this.displayPredictions.bind(this)}/>
+    { this.state.predictions.length > 0 && <SearchResults predictions={this.state.predictions} /> }
     </View>
   );
 }
