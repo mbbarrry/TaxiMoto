@@ -6,20 +6,9 @@ import Icon from "react-native-vector-icons/FontAwesome";
 
 
 export default class SearchBox extends React.Component {
- 
-constructor(props){
+ constructor(props) {
   super(props);
-  this.state={
-    pick:'',
-    drop:''
-  }
-}
-
-prediction(){
- RNGooglePlaces.getAutocompletePredictions('')
-    .then((results) => this.setState({ predictions: results }))
-    .catch((error) => console.log(error.message));
-  }
+ }
   render() {
     return (
 <View style={styles.SearchBox}>
@@ -29,7 +18,7 @@ prediction(){
       <Icon name="search" size={15} color="#FF5E3A" />
       <Input  style={styles.inputSearch} 
        placeholder="Pick-Up Location"
-      onChangeText={(text) => this.setState({pic: text})}
+      onChangeText={this.props.handleInputChange}
         
       />
   </InputGroup>  
@@ -40,8 +29,7 @@ prediction(){
       <Icon name="search" size={15} color="#FF5E3A" />
       <Input  style={styles.inputSearch} 
       placeholder="Drop-Off Location"
-      onChangeText={(text) => this.setState({drop: text})}
-      value={this.state.region}
+      onChangeText={this.props.handleInputChange}
       />
   </InputGroup>  
     
@@ -50,7 +38,7 @@ prediction(){
 
 </View>
          
-        );
+  );
   }
 }
 
