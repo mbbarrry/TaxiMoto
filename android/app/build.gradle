@@ -140,7 +140,6 @@ dependencies {
     compile "com.facebook.react:react-native:+"  // From node_modules
     compile project(':react-native-vector-icons')
     compile project(':react-native-maps')
-    compile project(':react-native-geocoder')
     compile project(':react-native-google-places')
 }
 

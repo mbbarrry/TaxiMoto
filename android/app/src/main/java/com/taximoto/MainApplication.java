@@ -1,7 +1,6 @@
 package com.taximoto;
 
 import android.app.Application;
-import com.devfd.RNGeocoder.RNGeocoderPackage;
 import com.facebook.react.ReactApplication;
 import com.arttitude360.reactnative.rngoogleplaces.RNGooglePlacesPackage;
 import com.airbnb.android.react.maps.MapsPackage;
@@ -28,8 +27,7 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
             new RNGooglePlacesPackage(),
             new MapsPackage(),
-            new VectorIconsPackage(),
-            new RNGeocoderPackage()
+            new VectorIconsPackage()
       );
     }
   };
