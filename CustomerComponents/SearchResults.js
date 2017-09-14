@@ -1,9 +1,13 @@
 import React from 'react';
 import {StyleSheet, Alert } from "react-native";
-import {View, List, ListItem, Left, Dimensions, Body, Text } from "native-base";
-import {Icon} from "native-base";
+
+import {View, List, ListItem, Left, Dimensions, Body, Text, Header, Title, Button, Right, Icon } from "native-base";
 
 export default class SearchResults extends React.Component {
+
+constructor(props) {
+  super(props);
+ }
 
   render() {
       return(
@@ -12,9 +16,9 @@ export default class SearchResults extends React.Component {
             dataArray={this.props.predictions}
             renderRow={(item)=>
               <View>
-                <ListItem  button avatar>
+                <ListItem onPress={ () => { this.props.handleSelectedItem(item) } } button avatar>
                   <Left style={styles.leftContainer}>
-                    <Icon style={styles.leftIcon} name="location-on" />
+                   
                   </Left>
                   <Body>
                     <Text style={styles.primaryText}>{item.primaryText}</Text>

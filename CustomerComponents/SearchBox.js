@@ -1,14 +1,15 @@
+
 import React from 'react';
 import {StyleSheet,Alert } from "react-native";
 import { InputGroup, Text, Header, Content, Form, Item, Input, View} from 'native-base';
 import Icon from "react-native-vector-icons/FontAwesome";
 
 
-
 export default class SearchBox extends React.Component {
  constructor(props) {
   super(props);
  }
+
   render() {
     return (
 <View style={styles.SearchBox}>
@@ -16,10 +17,10 @@ export default class SearchBox extends React.Component {
   <View style={styles.inputWrapper}>
   <InputGroup>
       <Icon name="search" size={15} color="#FF5E3A" />
-      <Input  style={styles.inputSearch} 
+      <Input  style={styles.inputSearch}
+       ref={(input) => { this.pickUp = input; }} 
        placeholder="Pick-Up Location"
-      onChangeText={this.props.handleInputChange}
-        
+       onChangeText={(text) => {this.props.handleInputChange(text, 'pick-up')}}
       />
   </InputGroup>  
   </View>   
@@ -28,13 +29,15 @@ export default class SearchBox extends React.Component {
   <InputGroup>
       <Icon name="search" size={15} color="#FF5E3A" />
       <Input  style={styles.inputSearch} 
-      placeholder="Drop-Off Location"
-      onChangeText={this.props.handleInputChange}
+        ref={(input) => { this.dropOff = input; }}  
+       placeholder="Drop-Off Location"
+       onChangeText={(text) => {this.props.handleInputChange(text, 'drop-off')}}
+       ref={(input) => { this.dropOff = input; }}
+      
       />
   </InputGroup>  
     
   </View>   
-
 
 </View>
          

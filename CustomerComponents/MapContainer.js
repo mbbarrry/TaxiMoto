@@ -13,7 +13,7 @@ import SearchBox from "./SearchBox"
 import Permissions from 'react-native-permissions'
 import RNGooglePlaces from 'react-native-google-places'
 import SearchResults from './SearchResults'
-
+import request from './request'
 const {width, height}= Dimensions.get('window') 
 
 const SCREEN_HEIGHT = height;
@@ -23,6 +23,7 @@ const LATTITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATTITUDE_DELTA * ASPECT_RATIO;
 
 var watchID = null;
+
 
 export default class MapContainer extends React.Component{
 
@@ -40,7 +41,12 @@ constructor (props){
     markerPosition:{
       latitude:3.253502,
       longitude:101.653326,
-    }
+    },
+    address: {
+      origin: null,
+      destination: null
+    },
+    distancematrix:{}
   };
 }
 
@@ -108,13 +114,46 @@ componentWillUnmount(){
   navigator.geolocation.clearWatch(this.wacthId);
 }
 
-displayPredictions(text){
+displayPredictions(text, type){
   RNGooglePlaces.getAutocompletePredictions(text)
-    .then((results) => this.setState({ predictions: results }))
+    .then((results) => {
+      this.setState({ 
+        predictions: results, 
+        predictionsType: type 
+      });
+    })
     .catch((error) => console.log(error.message));
 
-    // console.log('predictions', this.state.predictions);
+  // console.log('predictions', this.state.predictions);
 }
+
+selectedAddress(selectedItem){
+    this.setState({ 
+      predictions: [],
+      address: {
+        origin: this.state.predictionsType == 'pick-up' && selectedItem,
+        destination: this.state.predictionsType == 'drop-off' && selectedItem,
+      } 
+    });
+
+ console.log('selected address', this.state.predictionsType, selectedItem);
+
+}
+    //  if (this.state.origin && this.state.destination) {
+   //   request.get("https://maps.googleapis.com/maps/api/distancematrix/json")  
+   //   .query({
+   //      origin: this.state.origin.latitude + "," + this.state.origin.longitude,
+   //     destination: this.state.destination.latitude + "," + this.state.destination.longitude,
+   //     mode:"bicycling",
+     //   key:"AIzaSyAMMYiE-JJBJGtUNxzSXtcQPCcLp-cDgKE"
+    //  })
+    //  .finish((error, data)=>{
+    //     this.setState({distancematrix: data});
+    //     console.log(distancematrix);
+     //    console.log("error", error);
+    //  })
+ // }
+
 
 
 render() {
@@ -130,7 +169,7 @@ render() {
    />
 </MapView>
     <SearchBox handleInputChange={this.displayPredictions.bind(this)}/>
-    { this.state.predictions.length > 0 && <SearchResults predictions={this.state.predictions} /> }
+    { this.state.predictions.length > 0 && <SearchResults predictions={this.state.predictions} handleSelectedItem={this.selectedAddress.bind(this)}   />  }
     </View>
   );
 }
