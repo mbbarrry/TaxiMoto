@@ -17,10 +17,10 @@ export default class SearchBox extends React.Component {
   <View style={styles.inputWrapper}>
   <InputGroup>
       <Icon name="search" size={15} color="#FF5E3A" />
-      <Input  style={styles.inputSearch}
-       ref={(input) => { this.pickUp = input; }} 
+      <Input  style={styles.inputSearch} 
        placeholder="Pick-Up Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'pick-up')}}
+       
       />
   </InputGroup>  
   </View>   
@@ -28,12 +28,10 @@ export default class SearchBox extends React.Component {
 <View style={styles.secondInputWrapper}>
   <InputGroup>
       <Icon name="search" size={15} color="#FF5E3A" />
-      <Input  style={styles.inputSearch} 
-        ref={(input) => { this.dropOff = input; }}  
+      <Input  style={styles.inputSearch}  
        placeholder="Drop-Off Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'drop-off')}}
-       ref={(input) => { this.dropOff = input; }}
-      
+    
       />
   </InputGroup>  
     

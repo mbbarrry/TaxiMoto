@@ -27,6 +27,8 @@ var watchID = null;
 
 export default class MapContainer extends React.Component{
 
+  origin = null;
+  destination = null;
 
 constructor (props){
   super(props);
@@ -42,11 +44,9 @@ constructor (props){
       latitude:3.253502,
       longitude:101.653326,
     },
-    address: {
-      origin: null,
-      destination: null
-    },
-    distancematrix:{}
+      origin:{} ,
+      destination:{},
+      distance:{}
   };
 }
 
@@ -102,9 +102,8 @@ componentDidMount(){
        latitude: lat,
        longitude: long,
        latitudeDelta: LATTITUDE_DELTA,
-      longitudeDelta: LONGITUDE_DELTA
+       longitudeDelta: LONGITUDE_DELTA
       };
-      
       this.setState({initialRegion: lastRegion, markerPosition: lastRegion});
   });
 
@@ -128,33 +127,56 @@ displayPredictions(text, type){
 }
 
 selectedAddress(selectedItem){
-    this.setState({ 
-      predictions: [],
-      address: {
-        origin: this.state.predictionsType == 'pick-up' && selectedItem,
-        destination: this.state.predictionsType == 'drop-off' && selectedItem,
-      } 
-    });
+  const predictionType = this.state.predictionsType;
 
- console.log('selected address', this.state.predictionsType, selectedItem);
+  if (predictionType == 'drop-off') {
+    this.destination = selectedItem; 
+  }
 
+  if (predictionType == 'pick-up') {
+    this.origin = selectedItem; 
+  }
+
+  if (this.destination !== null && this.origin !== null) {
+     this.getDistanceMatrix(this.origin, this.destination);
+  }
+
+  this.setState({
+    predictions: [],
+    origin:this.origin,
+    destination:this.destination,
+  });
 }
-    //  if (this.state.origin && this.state.destination) {
-   //   request.get("https://maps.googleapis.com/maps/api/distancematrix/json")  
-   //   .query({
-   //      origin: this.state.origin.latitude + "," + this.state.origin.longitude,
-   //     destination: this.state.destination.latitude + "," + this.state.destination.longitude,
-   //     mode:"bicycling",
-     //   key:"AIzaSyAMMYiE-JJBJGtUNxzSXtcQPCcLp-cDgKE"
-    //  })
-    //  .finish((error, data)=>{
-    //     this.setState({distancematrix: data});
-    //     console.log(distancematrix);
-     //    console.log("error", error);
-    //  })
- // }
 
+getDistanceMatrix(origin, destination){
+  // console.log('o:d', origin, destination);
+     return request.get("https://maps.googleapis.com/maps/api/distancematrix/json")  
+     .query({
+        //origin: this.state.origin.latitude + "," + this.state.origin.longitude,
+        //destination: this.state.destination.latitude + "," + this.state.destination.longitude,
+        origins: ['place_id:' + origin.placeID],
+        destinations: ['place_id:' + destination.placeID],
+        travelMode:"bicycling",
+        key:"AIzaSyAMMYiE-JJBJGtUNxzSXtcQPCcLp-cDgKE"
+      })
+      .finish((error, data)=>{
+        try {
+          var distanceMatrix = data.body.rows[0].elements[0];
+          this.setState({distance: distanceMatrix.distance});
+        } catch (e) {
+          console.error(e);
+          return null;
+        }
+        // if so, update state.distance
+        console.log(this.state.distance);
+        // console.log('dist', data.)
+        // this.setState({distance: data});
+        // console.log(this.state.distance);
+        // console.log(error);
+      });
+}
 
+    
 
 render() {
   return(
