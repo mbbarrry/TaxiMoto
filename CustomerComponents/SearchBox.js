@@ -8,19 +8,20 @@ import Icon from "react-native-vector-icons/FontAwesome";
 export default class SearchBox extends React.Component {
  constructor(props) {
   super(props);
+
  }
 
   render() {
+
     return (
 <View style={styles.SearchBox}>
-
   <View style={styles.inputWrapper}>
   <InputGroup>
       <Icon name="search" size={15} color="#FF5E3A" />
       <Input  style={styles.inputSearch} 
        placeholder="Pick-Up Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'pick-up')}}
-       
+       value={this.props.addressName}
       />
   </InputGroup>  
   </View>   
@@ -31,7 +32,7 @@ export default class SearchBox extends React.Component {
       <Input  style={styles.inputSearch}  
        placeholder="Drop-Off Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'drop-off')}}
-    
+     
       />
   </InputGroup>  
     

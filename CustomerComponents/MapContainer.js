@@ -14,6 +14,9 @@ import Permissions from 'react-native-permissions'
 import RNGooglePlaces from 'react-native-google-places'
 import SearchResults from './SearchResults'
 import request from './request'
+import calculateFare from './fareCalculator'
+//import Book from './Book'
+
 const {width, height}= Dimensions.get('window') 
 
 const SCREEN_HEIGHT = height;
@@ -46,7 +49,15 @@ constructor (props){
     },
       origin:{} ,
       destination:{},
-      distance:{}
+      distance:{},
+
+      dummyNumbers:{
+        baseFare:0.4,
+        timeRate:0.14,
+        distanceRate:0.97,
+        surge:1
+      },
+      totalfare:{}
   };
 }
 
@@ -146,6 +157,7 @@ selectedAddress(selectedItem){
     origin:this.origin,
     destination:this.destination,
   });
+  //console.log('origin and dest',selectedItem);
 }
 
 getDistanceMatrix(origin, destination){
@@ -162,21 +174,43 @@ getDistanceMatrix(origin, destination){
       .finish((error, data)=>{
         try {
           var distanceMatrix = data.body.rows[0].elements[0];
-          this.setState({distance: distanceMatrix.distance});
+          this.setState({distance: distanceMatrix.distance.value});
+          this.setState({duration : distanceMatrix.duration.value});
+          console.log('the distance', this.state.distance);
+          console.log('the duration', this.state.duration);
+          this.gettheFare(this.state.distance, this.state.duration );
         } catch (e) {
           console.error(e);
           return null;
         }
         // if so, update state.distance
-        console.log(this.state.distance);
+       
         // console.log('dist', data.)
         // this.setState({distance: data});
         // console.log(this.state.distance);
         // console.log(error);
-      });
+      });    
 }
 
-    
+
+
+gettheFare(distance, duration){
+      if (distance !==null) {
+       const fare= calculateFare(
+            this.state.dummyNumbers.baseFare,
+            this.state.dummyNumbers.timeRate,
+            duration,
+            this.state.dummyNumbers.distanceRate,
+            distance,
+            this.state.dummyNumbers.surge,
+          );
+       this.setState({
+            totalfare: fare
+         });
+       console.log('my fare', this.state.totalfare);
+         }
+}
+
 
 render() {
   return(
@@ -190,8 +224,20 @@ render() {
     pinColor="green"
    />
 </MapView>
-    <SearchBox handleInputChange={this.displayPredictions.bind(this)}/>
-    { this.state.predictions.length > 0 && <SearchResults predictions={this.state.predictions} handleSelectedItem={this.selectedAddress.bind(this)}   />  }
+    <SearchBox handleInputChange={this.displayPredictions.bind(this)}  
+    addressName={this.state.origin.primaryText !== null && this.state.origin.primaryText && null}
+    />
+   
+    { 
+
+      this.state.predictions.length > 0 && <SearchResults predictions={this.state.predictions} handleSelectedItem={this.selectedAddress.bind(this)}  /> 
+    }
+    
+
+    {
+     // this.state.totalfare.length > 0 && <Book thefare={this.state.totalfare} />
+    }
+
     </View>
   );
 }
