@@ -174,8 +174,10 @@ getDistanceMatrix(origin, destination){
       .finish((error, data)=>{
         try {
           var distanceMatrix = data.body.rows[0].elements[0];
-          this.setState({distance: distanceMatrix.distance.value});
-          this.setState({duration : distanceMatrix.duration.value});
+          this.setState({
+            distance: distanceMatrix.distance.value,
+            duration : distanceMatrix.duration.value
+          });
           console.log('the distance', this.state.distance);
           console.log('the duration', this.state.duration);
           this.gettheFare(this.state.distance, this.state.duration );
@@ -225,7 +227,7 @@ render() {
    />
 </MapView>
     <SearchBox handleInputChange={this.displayPredictions.bind(this)}  
-    addressName={this.state.origin.primaryText !== null && this.state.origin.primaryText && null}
+    addressName={this.state.origin.primaryText !== null && this.state.origin.primaryText}
     />
    
     { 
