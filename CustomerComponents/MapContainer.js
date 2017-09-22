@@ -15,7 +15,7 @@ import RNGooglePlaces from 'react-native-google-places'
 import SearchResults from './SearchResults'
 import request from './request'
 import calculateFare from './fareCalculator'
-//import Book from './Book'
+import Book from './Book'
 
 const {width, height}= Dimensions.get('window') 
 
@@ -57,7 +57,7 @@ constructor (props){
         distanceRate:0.97,
         surge:1
       },
-      totalfare:{}
+      totalfare:[],
   };
 }
 
@@ -207,7 +207,7 @@ gettheFare(distance, duration){
             this.state.dummyNumbers.surge,
           );
        this.setState({
-            totalfare: fare
+            totalfare: [fare]
          });
        console.log('my fare', this.state.totalfare);
          }
@@ -248,13 +248,12 @@ render() {
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
-    height: 660,
-    width: 500,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    flex:1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'center'
   },
   map: {
-    ...StyleSheet.absoluteFillObject,
-  },
+    ...StyleSheet.absoluteFillObject
+  }
 });

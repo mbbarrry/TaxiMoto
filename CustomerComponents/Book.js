@@ -14,20 +14,21 @@ export default class Book extends React.Component {
   render() {
     return (
 <View style={styles.searchResultsWrapper}>
-  <Text>Fare: RM {this.props.thefare}<Text>
-
+  <Text>Fare: RM {this.props.thefare}</Text>
 </View>
          
   );
   }
 }
 const styles= StyleSheet.create({
-    searchResultsWrapper:{
-        top:200,
-        position:"absolute",
-        width:500,
-        height:450,
-        backgroundColor:"#fff",
-        opacity:0.9
-    },
+    searchResultsWrapper:{ 
+    top:40,
+    width:350,
+    paddingTop:10,
+    flexDirection: 'column',
+    paddingLeft:20,
+    backgroundColor: '#fff',
+    height:200,
+    borderRadius:4
+    }
   });

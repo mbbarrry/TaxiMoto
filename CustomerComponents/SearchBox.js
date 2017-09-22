@@ -46,19 +46,22 @@ export default class SearchBox extends React.Component {
 
 const styles= StyleSheet.create({
   SearchBox:{
-    top:65,
-    position:"absolute",
-    width:400,
-    height: 50
+    top:10,
+    width:350,
+    paddingLeft:20,
+    backgroundColor: '#fff',
+    height:140
   },
   inputWrapper:{
     paddingLeft: 20,
     marginLeft:0,
     marginRight:85,
+    marginTop:12,
     marginBottom:0,
-    backgroundColor: "#fff",
+    backgroundColor: "rgb(236, 240, 241)",
     opacity: 0.9,
-    borderRadius:7
+   borderRadius:5,
+   width:310
   },
   secondInputWrapper:{
     paddingLeft: 20,
@@ -66,12 +69,20 @@ const styles= StyleSheet.create({
     marginRight:85,
     marginTop: 10,
     marginBottom:0,
-    backgroundColor: "#fff",
+    backgroundColor: "rgb(236, 240, 241)",
     opacity: 0.9,
-    borderRadius: 7
+    borderRadius: 5,
+    width:310
   },
   inputSearch:{
     fontSize: 15
   },
+  label:{
+        fontSize:10,
+        fontStyle: "italic",
+        marginLeft:10,
+        marginTop:10,
+        marginBottom:0
+    }
   
   });
