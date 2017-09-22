@@ -104,7 +104,7 @@ componentDidMount(){
     {enableHighAccurracy: true, timeout: 20000, maximuAge: 1000}
     );
 
-    this.watchID  = navigator.geolocation.wacthPosition((position) => {
+    this.watchID  = navigator.geolocation.watchPosition((position) => {
 
       var lat = position.coords.latitude;
       var long = position.coords.longitude;
@@ -121,7 +121,7 @@ componentDidMount(){
 }
 
 componentWillUnmount(){
-  navigator.geolocation.clearWatch(this.wacthId);
+  navigator.geolocation.clearWatch(this.watchId);
 }
 
 displayPredictions(text, type){
@@ -213,7 +213,6 @@ gettheFare(distance, duration){
          }
 }
 
-
 render() {
   return(
    <View style={styles.container}>
@@ -228,16 +227,16 @@ render() {
 </MapView>
     <SearchBox handleInputChange={this.displayPredictions.bind(this)}  
     addressName={this.state.origin.primaryText !== null && this.state.origin.primaryText}
+    displayFare={(displayFare) => {console.log('display fare', displayFare); this.setState({...this.state, displayFare: displayFare})}}
     />
    
     { 
-
       this.state.predictions.length > 0 && <SearchResults predictions={this.state.predictions} handleSelectedItem={this.selectedAddress.bind(this)}  /> 
     }
     
 
     {
-     // this.state.totalfare.length > 0 && <Book thefare={this.state.totalfare} />
+      this.state.displayFare && this.state.totalfare.length > 0 && <Book thefare={this.state.totalfare} />
     }
 
     </View>

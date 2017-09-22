@@ -22,6 +22,8 @@ export default class SearchBox extends React.Component {
        placeholder="Pick-Up Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'pick-up')}}
        value={this.props.addressName}
+       onFocus={() => { this.props.displayFare(false) }}
+       onBlur={() => { this.props.displayFare(true) }}
       />
   </InputGroup>  
   </View>   
