@@ -1,8 +1,10 @@
 import React from 'react';
-import {StyleSheet, Alert } from "react-native";
+import {StyleSheet,  Dimensions} from "react-native";
 
-import {View, List, ListItem, Left, Dimensions, Body, Text, Header, Title, Button, Right, Icon } from "native-base";
+import {View, List, ListItem, Left, Body, Text, Header, Title, Button, Right} from "native-base";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
+var width = Dimensions.get("window").width;
 export default class SearchResults extends React.Component {
 
 constructor(props) {
@@ -18,7 +20,7 @@ constructor(props) {
               <View>
                 <ListItem onPress={ () => { this.props.handleSelectedItem(item) } } button avatar>
                   <Left style={styles.leftContainer}>
-                   
+                      <Icon style={styles.leftIcon} name="location-on" />
                   </Left>
                   <Body>
                     <Text style={styles.primaryText}>{item.primaryText}</Text>
@@ -37,10 +39,10 @@ constructor(props) {
 
 const styles= StyleSheet.create({
     searchResultsWrapper:{
-        top:200,
+        top:155,
         position:"absolute",
-        width:500,
-        height:450,
+        width:width,
+        height:1000,
         backgroundColor:"#fff",
         opacity:0.9
     },

@@ -2,12 +2,14 @@ import React from 'React';
 import {
   View,
   StyleSheet,
-  Text,
   Alert,
-  Dimensions,
+  Dimensions
 }
 from "react-native";
 
+import { Container, Header, Content, Toast, Button, Text, Icon , Left, Right} from 'native-base';
+
+import AppHeader from './appHeader'
 import MapView from "react-native-maps";
 import SearchBox from "./SearchBox"
 import Permissions from 'react-native-permissions'
@@ -16,8 +18,10 @@ import SearchResults from './SearchResults'
 import request from './request'
 import calculateFare from './fareCalculator'
 import Book from './Book'
+import Bookingbtn from './Bookingbtn'
+import TripInfo from './TripInfo'
 
-const {width, height}= Dimensions.get('window') 
+const {width, height}= Dimensions.get('window'); 
 
 const SCREEN_HEIGHT = height;
 const SCREEEN_WIDTH = width;
@@ -57,7 +61,14 @@ constructor (props){
         distanceRate:0.97,
         surge:1
       },
+      
+      destinationcords:{
+      lat:3.253502,
+      long:101.653326,
+      },
       totalfare:[],
+      showToast: false,
+      displayReq:false
   };
 }
 
@@ -140,16 +151,18 @@ displayPredictions(text, type){
 selectedAddress(selectedItem){
   const predictionType = this.state.predictionsType;
 
+if (predictionType == 'pick-up') {
+    this.origin = selectedItem; 
+  }
+
   if (predictionType == 'drop-off') {
     this.destination = selectedItem; 
   }
 
-  if (predictionType == 'pick-up') {
-    this.origin = selectedItem; 
-  }
 
   if (this.destination !== null && this.origin !== null) {
      this.getDistanceMatrix(this.origin, this.destination);
+     this.gethedestinationLatLong(selectedItem);
   }
 
   this.setState({
@@ -178,22 +191,15 @@ getDistanceMatrix(origin, destination){
             distance: distanceMatrix.distance.value,
             duration : distanceMatrix.duration.value
           });
-          console.log('the distance', this.state.distance);
-          console.log('the duration', this.state.duration);
+          //console.log('the distance', this.state.distance);
+          //console.log('the duration', this.state.duration);
           this.gettheFare(this.state.distance, this.state.duration );
         } catch (e) {
           console.error(e);
           return null;
         }
-        // if so, update state.distance
-       
-        // console.log('dist', data.)
-        // this.setState({distance: data});
-        // console.log(this.state.distance);
-        // console.log(error);
       });    
 }
-
 
 
 gettheFare(distance, duration){
@@ -213,33 +219,105 @@ gettheFare(distance, duration){
          }
 }
 
+
+gethedestinationLatLong(destlatlong){
+//console.log('id', destlatlong.placeID);
+RNGooglePlaces.lookUpPlaceByID(destlatlong.placeID)
+.then((results) =>{
+        try {
+          var coordinate = results;
+          this.setState({
+            destinationcords:{
+            lat: coordinate.latitude,
+            long : coordinate.longitude
+          }
+          });
+          console.log('the lat', this.state.destinationcords.lat);
+          console.log('long', this.state.destinationcords.long);
+        
+        } catch (e) {
+          console.error(e);
+          return null;
+        }
+      });    
+}
+
+
+// tripinfo(){
+  // this.state={
+    // visible:false
+  // }
+// }
+
+
+
 render() {
   return(
+  <Container>  
+
+{
+  this.state.displayReq == false &&
+   
+   <View style={{flex:1}}>
+   <AppHeader />
    <View style={styles.container}>
     <MapView
     style={styles.map}
     region={this.state.region}>
-  
   <MapView.Marker  
     coordinate={this.state.markerPosition}
     pinColor="green"
    />
+ 
+   {
+    this.state.destinationcords.length > 0 &&
+    <MapView.Marker  
+    coordinate={this.state.destinationcords}
+    pinColor="red"
+    />
+
+    }
+
+
 </MapView>
     <SearchBox handleInputChange={this.displayPredictions.bind(this)}  
-    addressName={this.state.origin.primaryText !== null && this.state.origin.primaryText}
-    displayFare={(displayFare) => {console.log('display fare', displayFare); this.setState({...this.state, displayFare: displayFare})}}
+    originName={this.origin !== null && this.state.origin.primaryText}
+    destinationName={this.destination !== null && this.state.destination.primaryText}
+    displayFare={(displayFare) => {this.setState({...this.state, displayFare: displayFare})}}
     />
    
     { 
-      this.state.predictions.length > 0 && <SearchResults predictions={this.state.predictions} handleSelectedItem={this.selectedAddress.bind(this)}  /> 
+      this.state.predictions.length > 0 && 
+      <SearchResults predictions={this.state.predictions} handleSelectedItem={this.selectedAddress.bind(this)}  /> 
     }
     
 
     {
       this.state.displayFare && this.state.totalfare.length > 0 && <Book thefare={this.state.totalfare} />
+      
     }
+   
+   {
+
+       this.state.displayFare && this.state.totalfare.length > 0  &&  
+       <Bookingbtn onPressAction={() => {this.setState({...this.state, displayReq: true})}} />
+   }
 
     </View>
+   </View>
+    
+   ||
+
+     <TripInfo  
+     originName={this.origin !== null && this.state.origin.primaryText}
+     destinationName={this.destination !== null && this.state.destination.primaryText}
+     />
+
+}
+
+
+</Container>
+
   );
 }
 }

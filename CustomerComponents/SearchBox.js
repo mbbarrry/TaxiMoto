@@ -1,10 +1,10 @@
 
 import React from 'react';
-import {StyleSheet,Alert } from "react-native";
+import {StyleSheet, Dimensions } from "react-native";
 import { InputGroup, Text, Header, Content, Form, Item, Input, View} from 'native-base';
 import Icon from "react-native-vector-icons/FontAwesome";
 
-
+var width = Dimensions.get("window").width;
 export default class SearchBox extends React.Component {
  constructor(props) {
   super(props);
@@ -17,24 +17,25 @@ export default class SearchBox extends React.Component {
 <View style={styles.SearchBox}>
   <View style={styles.inputWrapper}>
   <InputGroup>
-      <Icon name="search" size={15} color="#FF5E3A" />
+      <Icon name="search" size={17} color="green" />
       <Input  style={styles.inputSearch} 
        placeholder="Pick-Up Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'pick-up')}}
-       value={this.props.addressName}
+       value={this.props.originName}
        onFocus={() => { this.props.displayFare(false) }}
        onBlur={() => { this.props.displayFare(true) }}
       />
   </InputGroup>  
   </View>   
-
 <View style={styles.secondInputWrapper}>
   <InputGroup>
-      <Icon name="search" size={15} color="#FF5E3A" />
+      <Icon name="search" size={17} color="green"/>
       <Input  style={styles.inputSearch}  
        placeholder="Drop-Off Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'drop-off')}}
-     
+       value={this.props.destinationName}
+       onFocus={() => { this.props.displayFare(false) }}
+       onBlur={() => { this.props.displayFare(true) }}
       />
   </InputGroup>  
     
@@ -49,42 +50,31 @@ export default class SearchBox extends React.Component {
 const styles= StyleSheet.create({
   SearchBox:{
     top:10,
-    width:350,
-    paddingLeft:20,
+    position:"absolute",
+    width:width*0.9,
     backgroundColor: '#fff',
     height:140
   },
   inputWrapper:{
-    paddingLeft: 20,
-    marginLeft:0,
-    marginRight:85,
-    marginTop:12,
-    marginBottom:0,
+    marginLeft:15,
+    marginRight:10,
+    marginTop:15,
+    marginBottom:10,
     backgroundColor: "rgb(236, 240, 241)",
     opacity: 0.9,
-   borderRadius:5,
-   width:310
+   borderRadius:5
   },
   secondInputWrapper:{
-    paddingLeft: 20,
-    marginLeft:0,
-    marginRight:85,
-    marginTop: 10,
-    marginBottom:0,
+    marginLeft:15,
+    marginRight:10,
+    marginTop: 0,
+    marginBottom:3,
     backgroundColor: "rgb(236, 240, 241)",
     opacity: 0.9,
-    borderRadius: 5,
-    width:310
+    borderRadius: 5
   },
   inputSearch:{
-    fontSize: 15
-  },
-  label:{
-        fontSize:10,
-        fontStyle: "italic",
-        marginLeft:10,
-        marginTop:10,
-        marginBottom:0
-    }
-  
+    fontSize: 16,
+    paddingLeft:10
+  }
   });

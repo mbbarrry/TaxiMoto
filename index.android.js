@@ -10,8 +10,9 @@ import {
   StyleSheet,
   View
 } from 'react-native';
+import MapContainer from './CustomerComponents/MapContainer'
 
-import CustomerHomeScreen from './CustomerComponents/CustomerHomeScreen'
+//import CustomerHomeScreen from './CustomerComponents/CustomerHomeScreen'
 
 //import Router from './components/Router'
 
@@ -24,7 +25,7 @@ export default class TaxiMoto extends Component {
 
 render() {
     return (
-      <CustomerHomeScreen />
+      <MapContainer />
     );
   }
 }
