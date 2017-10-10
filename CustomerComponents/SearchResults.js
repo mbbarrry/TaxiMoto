@@ -1,7 +1,7 @@
 import React from 'react';
-import {StyleSheet,  Dimensions} from "react-native";
+import {StyleSheet, View, Dimensions} from "react-native";
 
-import {View, List, ListItem, Left, Body, Text, Header, Title, Button, Right} from "native-base";
+import {List, ListItem, Left, Body, Text, Header, Title, Button, Right} from "native-base";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 var width = Dimensions.get("window").width;

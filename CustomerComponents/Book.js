@@ -1,7 +1,7 @@
 
 import React from 'react';
-import {StyleSheet, Dimensions } from "react-native";
-import { InputGroup, Button, Text, Header, Content, Form, Item, Input, View, Picker} from 'native-base';
+import {StyleSheet, Dimensions, View } from "react-native";
+import { InputGroup, Button, Text, Header, Content, Form, Item, Input, Picker} from 'native-base';
 import Icon from "react-native-vector-icons/FontAwesome";
 
 var width = Dimensions.get("window").width;

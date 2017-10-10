@@ -34,6 +34,11 @@ var watchID = null;
 
 export default class MapContainer extends React.Component{
 
+static navigationOptions = {
+    title: 'CustomerScreen',
+  };
+
+
   origin = null;
   destination = null;
 
@@ -44,7 +49,7 @@ constructor (props){
     region:{
       latitude:3.253502,
       longitude:101.653326,
-       latitudeDelta: 0.0022,
+      latitudeDelta: 0.0022,
       longitudeDelta: 0.0422,
     },
     markerPosition:{
@@ -63,14 +68,16 @@ constructor (props){
       },
       
       destinationcords:{
-      lat:3.253502,
-      long:101.653326,
+      lat:null,
+      long:null,
       },
       totalfare:[],
       showToast: false,
-      displayReq:false
-  };
-}
+      displayReq:false,
+      markerids:['marker1', 'marker2'],
+   },
+     this.mapRef = null;
+   }
 
 componentDidMount(){
 
@@ -135,6 +142,10 @@ componentWillUnmount(){
   navigator.geolocation.clearWatch(this.watchId);
 }
 
+
+
+//function to get the google places predictions
+
 displayPredictions(text, type){
   RNGooglePlaces.getAutocompletePredictions(text)
     .then((results) => {
@@ -147,6 +158,9 @@ displayPredictions(text, type){
 
   // console.log('predictions', this.state.predictions);
 }
+
+
+//function to get the selected item from google places prediction
 
 selectedAddress(selectedItem){
   const predictionType = this.state.predictionsType;
@@ -170,8 +184,13 @@ if (predictionType == 'pick-up') {
     origin:this.origin,
     destination:this.destination,
   });
-  //console.log('origin and dest',selectedItem);
+  console.log('origin and dest',selectedItem);
+  console.log('des...', this.destination);
 }
+
+
+
+//function to get the distance using google distancematrix
 
 getDistanceMatrix(origin, destination){
   // console.log('o:d', origin, destination);
@@ -201,6 +220,7 @@ getDistanceMatrix(origin, destination){
       });    
 }
 
+//function to calculate the fare  
 
 gettheFare(distance, duration){
       if (distance !==null) {
@@ -220,8 +240,10 @@ gettheFare(distance, duration){
 }
 
 
+//function to get the latlong of the destination
+
 gethedestinationLatLong(destlatlong){
-//console.log('id', destlatlong.placeID);
+//console.log('id', destlatlong);
 RNGooglePlaces.lookUpPlaceByID(destlatlong.placeID)
 .then((results) =>{
         try {
@@ -232,6 +254,7 @@ RNGooglePlaces.lookUpPlaceByID(destlatlong.placeID)
             long : coordinate.longitude
           }
           });
+          console.log("any", coordinate);
           console.log('the lat', this.state.destinationcords.lat);
           console.log('long', this.state.destinationcords.long);
         
@@ -243,10 +266,41 @@ RNGooglePlaces.lookUpPlaceByID(destlatlong.placeID)
 }
 
 
-// tripinfo(){
-  // this.state={
-    // visible:false
-  // }
+//function to fit  the map the supplied markers 
+
+componentDidUpdate(){
+  if(this.mapRef !==null){
+  this.mapRef.fitToSuppliedMarkers(
+        this.state.markerids,
+        false, // not animateds
+      );
+}
+}
+
+//function to send request to driver
+
+// requestDriver(){
+// if(this.state.origin.primaryText !=null)
+// this.setState(
+//   ...this.state
+//   tripData:{
+//     userName:"barry",
+//     pickUpAddress:gombak,
+//     dropOffAddress:klcc,
+//     fare:fare,
+//     status:"pending"
+//     });
+
+// request.post('http://localhost:3000/api/BroadCastRequest')
+// .send(this.state.tripData)
+//  .finish((error, res)=>{
+//     if(res){
+//     console.log("data has been sent successfully");
+//   }
+//  });
+
+
+
 // }
 
 
@@ -261,25 +315,29 @@ render() {
    <View style={{flex:1}}>
    <AppHeader />
    <View style={styles.container}>
+
     <MapView
     style={styles.map}
-    region={this.state.region}>
-  <MapView.Marker  
+    region={this.state.region}
+    ref={(ref) => { this.mapRef = ref }}>
+
+   <MapView.Marker  
     coordinate={this.state.markerPosition}
     pinColor="green"
+    identifier={this.state.markerids[0]}
    />
  
    {
-    this.state.destinationcords.length > 0 &&
+    this.state.destinationcords.lat !== null  &&
     <MapView.Marker  
-    coordinate={this.state.destinationcords}
+    coordinate={{latitude: this.state.destinationcords.lat, longitude: this.state.destinationcords.long}}
     pinColor="red"
+    identifier={this.state.markerids[1]}
     />
-
     }
 
+   </MapView>
 
-</MapView>
     <SearchBox handleInputChange={this.displayPredictions.bind(this)}  
     originName={this.origin !== null && this.state.origin.primaryText}
     destinationName={this.destination !== null && this.state.destination.primaryText}
@@ -331,6 +389,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   map: {
+    position:'absolute',
     ...StyleSheet.absoluteFillObject
   }
 });

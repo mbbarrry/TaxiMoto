@@ -1,7 +1,7 @@
 
 import React from 'react';
-import {StyleSheet, Alert, Text, StatusBar, Dimensions } from "react-native";
-import {View, Button} from 'native-base';
+import {StyleSheet, View, Alert, Text, StatusBar, Dimensions } from "react-native";
+import {Button, Toast} from 'native-base';
 import Icon from "react-native-vector-icons/FontAwesome";
 
 const { width } = Dimensions.get("window");
@@ -11,6 +11,9 @@ export default class TripInfo extends React.Component {
   super(props);
 
  }
+
+//setTimeout(function(){ Alert.alert("driver found!")}, 3000);
+
 
   render() {
     return (

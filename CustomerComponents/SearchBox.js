@@ -1,7 +1,7 @@
 
 import React from 'react';
-import {StyleSheet, Dimensions } from "react-native";
-import { InputGroup, Text, Header, Content, Form, Item, Input, View} from 'native-base';
+import {StyleSheet, Dimensions, View } from "react-native";
+import { InputGroup, Text, Header, Content, Form, Item, Input} from 'native-base';
 import Icon from "react-native-vector-icons/FontAwesome";
 
 var width = Dimensions.get("window").width;
@@ -17,19 +17,19 @@ export default class SearchBox extends React.Component {
 <View style={styles.SearchBox}>
   <View style={styles.inputWrapper}>
   <InputGroup>
-      <Icon name="search" size={17} color="green" />
+      <Icon name="search" size={15} color="green" />
       <Input  style={styles.inputSearch} 
        placeholder="Pick-Up Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'pick-up')}}
        value={this.props.originName}
-       onFocus={() => { this.props.displayFare(false) }}
-       onBlur={() => { this.props.displayFare(true) }}
+       onFocus={() => { this.props.displayFare(false)}}
+       onBlur={() => { this.props.displayFare(true)}}
       />
   </InputGroup>  
   </View>   
 <View style={styles.secondInputWrapper}>
   <InputGroup>
-      <Icon name="search" size={17} color="green"/>
+      <Icon name="search" size={15} color="green"/>
       <Input  style={styles.inputSearch}  
        placeholder="Drop-Off Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'drop-off')}}
@@ -50,10 +50,11 @@ export default class SearchBox extends React.Component {
 const styles= StyleSheet.create({
   SearchBox:{
     top:10,
-    position:"absolute",
+    position:'absolute',
     width:width*0.9,
     backgroundColor: '#fff',
-    height:140
+    height:140,
+    opacity:0.9
   },
   inputWrapper:{
     marginLeft:15,
@@ -61,7 +62,7 @@ const styles= StyleSheet.create({
     marginTop:15,
     marginBottom:10,
     backgroundColor: "rgb(236, 240, 241)",
-    opacity: 0.9,
+    //opacity: 0.9,
    borderRadius:5
   },
   secondInputWrapper:{
@@ -70,7 +71,7 @@ const styles= StyleSheet.create({
     marginTop: 0,
     marginBottom:3,
     backgroundColor: "rgb(236, 240, 241)",
-    opacity: 0.9,
+    //opacity: 0.9,
     borderRadius: 5
   },
   inputSearch:{

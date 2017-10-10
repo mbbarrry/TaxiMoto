@@ -1,7 +1,7 @@
 
 import React from 'react';
-import {StyleSheet, Alert, Dimensions } from "react-native";
-import { InputGroup, Button, Text, Header, Content, Form, Item, Input, View} from 'native-base';
+import {StyleSheet, View , Alert, Dimensions } from "react-native";
+import { InputGroup, Button, Text, Header, Content, Form, Item, Input} from 'native-base';
 import Icon from "react-native-vector-icons/FontAwesome";
 
 
