@@ -7,9 +7,10 @@ import {
 }
 from "react-native";
 
-import { Container, Header, Content, Toast, Button, Text, Icon , Left, Right} from 'native-base';
+import { Container, Drawer, Header, Content, Toast, Button, Text, Icon , Left, Right} from 'native-base';
 
 import AppHeader from './appHeader'
+import Sidebar from './sideBar'
 import MapView from "react-native-maps";
 import SearchBox from "./SearchBox"
 import Permissions from 'react-native-permissions'
@@ -305,15 +306,36 @@ componentDidUpdate(){
 
 
 
+
+//function to close drawer
+closeDrawer = () =>{
+    this.drawer._root.close()
+  };
+
+//function to open drawer
+  openDrawer = () => {
+    this.drawer._root.open()
+  };
+
+
+
 render() {
   return(
-  <Container>  
 
+
+<Container>  
 {
   this.state.displayReq == false &&
-   
+
+
+<Drawer  
+ref={(ref) => { this.drawer = ref;}}
+content={<Sidebar/>}
+onClose={()=> this.closeDrawer()} 
+>
+
    <View style={{flex:1}}>
-   <AppHeader />
+   <AppHeader openDrawer={this.openDrawer.bind(this)}/>
    <View style={styles.container}>
 
     <MapView
@@ -363,7 +385,9 @@ render() {
 
     </View>
    </View>
-    
+
+   </Drawer> 
+
    ||
 
      <TripInfo  
@@ -371,10 +395,13 @@ render() {
      destinationName={this.destination !== null && this.state.destination.primaryText}
      />
 
+
 }
 
 
 </Container>
+
+
 
   );
 }
@@ -393,3 +420,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject
   }
 });
+
+
+module.exports = MapContainer;

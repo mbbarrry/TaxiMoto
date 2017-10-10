@@ -24,7 +24,7 @@ export default class AppHeader extends React.Component {
      barStyle="light-content"
    /> 
           <Left>
-            <Button transparent>
+            <Button transparent   onPress={()=>this.props.openDrawer()}>
               <Icon name='menu' style={styles.icon} size={100}/>
             </Button>
           </Left>
