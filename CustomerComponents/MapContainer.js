@@ -8,7 +8,7 @@ import {
 from "react-native";
 
 import { Container, Drawer, Header, Content, Toast, Button, Text, Icon , Left, Right} from 'native-base';
-
+ //import Pusher from 'pusher-js/react-native';
 import AppHeader from './appHeader'
 import Sidebar from './sideBar'
 import MapView from "react-native-maps";
@@ -21,6 +21,8 @@ import calculateFare from './fareCalculator'
 import Book from './Book'
 import Bookingbtn from './Bookingbtn'
 import TripInfo from './TripInfo'
+
+
 
 const {width, height}= Dimensions.get('window'); 
 
@@ -36,7 +38,8 @@ var watchID = null;
 export default class MapContainer extends React.Component{
 
 static navigationOptions = {
-    title: 'CustomerScreen',
+    title:'',
+    header: null
   };
 
 
@@ -81,6 +84,10 @@ constructor (props){
    }
 
 componentDidMount(){
+
+
+
+
 
    //  Permissions.check('location', 'whenInUse')
      //  .then(response => {
@@ -140,6 +147,8 @@ componentDidMount(){
 }
 
 componentWillUnmount(){
+
+
   navigator.geolocation.clearWatch(this.watchId);
 }
 

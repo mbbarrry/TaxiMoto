@@ -1,19 +1,23 @@
-// var app = require("express")();
+var express= require("express");
+var router = express.Router();
+router.get("/BroadCastRequest", function(req, res, next){
+		var io = req.app.io;
+		res.send('my bookings');
+		io.emit("tracker", req);
+}); 
 
-// app.get("/BroadCastRequest", function(req, res, next){
-// 		res.send(res);
-// }); 
+router.post("/BroadCastRequest", function(req, res, next){
+	var booking= req.body;
+	res.json(booking);
+	console.log(booking);
+});
 
-// app.post("/BroadCastRequest", function(req, res, next){
-// 	var booking =req.body.tripData;
-// 	var io = req.app.io;
-// 	if(res.status(400)){
-// 		console.log("bad dta");
-// 	}	
-// 	else{
-// 		res.json(booking);
-// 		io.emit("driverRequest", booking);
-// 		console.log("data has been broadcasted");
-// 	}
 
-// });
+ // var socket = io('http://localhost:3000');
+ //  socket.on('news', function (data) {
+ //    console.log(data);
+ //    socket.emit('my other event', { my: 'data' });
+ //  });
+
+
+module.exports = router;

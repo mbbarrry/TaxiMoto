@@ -15,15 +15,18 @@ export default class TripInfo extends React.Component {
 //setTimeout(function(){ Alert.alert("driver found!")}, 3000);
 
 
+// <StatusBar
+         //     backgroundColor='rgb(22, 160, 133)'
+         //     barStyle="light-content" 
+         //  /> 
+
+
   render() {
     return (
 
 <View style={styles.container}>
 
-         <StatusBar
-             backgroundColor='rgb(22, 160, 133)'
-             barStyle="light-content" 
-          /> 
+    
 
       <Text style={styles.text}>Please wait while we find you a driver</Text>
       <Icon name="map-marker"  style={styles.locationIcon}/>

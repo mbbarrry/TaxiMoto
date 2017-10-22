@@ -23,6 +23,11 @@ const SimpleApp = StackNavigator({
   Home: { screen: mapNavigationStateParamsToProps(Main) },
   CustomerHomeScreen: {screen: mapNavigationStateParamsToProps(MapContainer)},
   DriverScreen: {screen: mapNavigationStateParamsToProps(DriverHome)}
-});
+},
+
+{
+headerMode: 'screen'
+}
+);
 
 export default SimpleApp

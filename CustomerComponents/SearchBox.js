@@ -8,7 +8,7 @@ var width = Dimensions.get("window").width;
 export default class SearchBox extends React.Component {
  constructor(props) {
   super(props);
-
+    
  }
 
   render() {
@@ -17,11 +17,11 @@ export default class SearchBox extends React.Component {
 <View style={styles.SearchBox}>
   <View style={styles.inputWrapper}>
   <InputGroup>
-      <Icon name="search" size={15} color="green" />
+      <Icon name="search" style={{fontSize:20, color:'green'}} />
       <Input  style={styles.inputSearch} 
        placeholder="Pick-Up Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'pick-up')}}
-       value={this.props.originName}
+       //value={this.props.originName }
        onFocus={() => { this.props.displayFare(false)}}
        onBlur={() => { this.props.displayFare(true)}}
       />
@@ -29,11 +29,11 @@ export default class SearchBox extends React.Component {
   </View>   
 <View style={styles.secondInputWrapper}>
   <InputGroup>
-      <Icon name="search" size={15} color="green"/>
+      <Icon name="search" style={{fontSize:20, color:'green'}}/>
       <Input  style={styles.inputSearch}  
        placeholder="Drop-Off Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'drop-off')}}
-       value={this.props.destinationName}
+      // value={this.props.destinationName}
        onFocus={() => { this.props.displayFare(false) }}
        onBlur={() => { this.props.displayFare(true) }}
       />
@@ -50,7 +50,7 @@ export default class SearchBox extends React.Component {
 const styles= StyleSheet.create({
   SearchBox:{
     top:10,
-    position:'absolute',
+    position:"absolute",
     width:width*0.9,
     backgroundColor: '#fff',
     height:140,
