@@ -12,15 +12,6 @@ export default class TripInfo extends React.Component {
 
  }
 
-//setTimeout(function(){ Alert.alert("driver found!")}, 3000);
-
-
-// <StatusBar
-         //     backgroundColor='rgb(22, 160, 133)'
-         //     barStyle="light-content" 
-         //  /> 
-
-
   render() {
     return (
 

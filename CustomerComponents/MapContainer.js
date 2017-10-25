@@ -6,9 +6,9 @@ import {
   Dimensions
 }
 from "react-native";
-
+import io from 'socket.io-client/dist/socket.io'
+//import socket from '../server/config'
 import { Container, Drawer, Header, Content, Toast, Button, Text, Icon , Left, Right} from 'native-base';
- //import Pusher from 'pusher-js/react-native';
 import AppHeader from './appHeader'
 import Sidebar from './sideBar'
 import MapView from "react-native-maps";
@@ -23,6 +23,7 @@ import Bookingbtn from './Bookingbtn'
 import TripInfo from './TripInfo'
 
 
+const WS_HOST = 'http://192.168.56.1:3000';
 
 const {width, height}= Dimensions.get('window'); 
 
@@ -47,6 +48,7 @@ static navigationOptions = {
   destination = null;
 
 constructor (props){
+ 
   super(props);
   this.state={
     predictions:[],
@@ -81,14 +83,19 @@ constructor (props){
       markerids:['marker1', 'marker2'],
    },
      this.mapRef = null;
-   }
+
+     status: null;
+
+console.ignoredYellowBox = [
+    'Setting a timer'
+]
+
+}
+
+
 
 componentDidMount(){
-
-
-
-
-
+    
    //  Permissions.check('location', 'whenInUse')
      //  .then(response => {
       //   this.setState({ locationPermission: response })
@@ -245,7 +252,7 @@ gettheFare(distance, duration){
        this.setState({
             totalfare: [fare]
          });
-       console.log('my fare', this.state.totalfare);
+       console.log('my fare', this.state.totalfare[0]);
          }
 }
 
@@ -289,29 +296,23 @@ componentDidUpdate(){
 
 //function to send request to driver
 
-// requestDriver(){
-// if(this.state.origin.primaryText !=null)
-// this.setState(
-//   ...this.state
-//   tripData:{
-//     userName:"barry",
-//     pickUpAddress:gombak,
-//     dropOffAddress:klcc,
-//     fare:fare,
-//     status:"pending"
-//     });
+requestDriver(){
+  
+  this.setState({status: 'pending' });
 
-// request.post('http://localhost:3000/api/BroadCastRequest')
-// .send(this.state.tripData)
-//  .finish((error, res)=>{
-//     if(res){
-//     console.log("data has been sent successfully");
-//   }
-//  });
+ let socket = io(WS_HOST)
+socket.on("connect", ()=>{
+      console.log('customer connected to server');  
+  socket.emit('request', {
+    "userName": "barry",
+    "pickUpAddress": this.state.origin.primaryText,
+    "dropOffAddress": this.state.destination.primaryText ,
+    "fare": this.state.totalfare[0],
+    "status": this.state.status
+    });
+   });
 
-
-
-// }
+}
 
 
 
@@ -334,8 +335,7 @@ render() {
 
 <Container>  
 {
-  this.state.displayReq == false &&
-
+  this.state.status ==null  &&
 
 <Drawer  
 ref={(ref) => { this.drawer = ref;}}
@@ -389,7 +389,7 @@ onClose={()=> this.closeDrawer()}
    {
 
        this.state.displayFare && this.state.totalfare.length > 0  &&  
-       <Bookingbtn onPressAction={() => {this.setState({...this.state, displayReq: true})}} />
+       <Bookingbtn onPressAction={()=> {this.requestDriver()}} />
    }
 
     </View>

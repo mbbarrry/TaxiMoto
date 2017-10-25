@@ -16,37 +16,15 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use('/api', BroadCastRequest);
 
 io.on('connection', function (socket) {
-    console.log("socket connected", socket.id);
-    io.emit('hello message', { hello: 'world' });
-    
-    socket.on('ms', function (from) {
-    	console.log('i received this', from);
-    	socket.emit('ms', {msg: 'welcome user1'});
-  	});
-  	socket.on('driver', function (e) {
-  		console.log('msg from driver', e)
-  	});
+	console.log('user connected', socket.id);
     socket.on('disconnect', function(){
-      socket.emit('user disconnected');
+      console.log('user disconnected');
     });
-  
-  });
+    socket.on('request', (data)=>{
+    	console.log('from client',data);
+    	io.emit('triprequest',{data});
+    	console.log('sever emitiing:',data);
 
-
-// var WebSocket = require('ws');
-// const wss = new WebSocket.Server({ server });
-// wss.on('connection', (ws) => {
-// 	console.log('new connection');
-//     //connection is up, let's add a simple simple event
-//     ws.on('message', (message) => {
-
-//         //log the received message and send it back to the client
-//         console.log('received: %s', message);
-//         ws.send(`Hello, you sent -> ${message}`);
-//     });
-
-//     //send immediatly a feedback to the incoming connection    
-//     ws.send('Hi there, I am a WebSocket server');
-// });
-
+    });
+});
 server.listen(port);

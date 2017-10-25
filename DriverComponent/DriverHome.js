@@ -12,9 +12,11 @@ import io from 'socket.io-client/dist/socket.io'
 import { Container, Drawer, Header, Content, Form, Item, Input,Icon, Button } from 'native-base';
 import AppHeader from './appHeader'
 import Sidebar from './sideBar'
+import TripRequest from './TripRequest'
+import socket from '../server/config'
+//const WS_HOST = 'http://192.168.56.1:3000'
 
-const WS_HOST = 'http://192.168.56.1:3000'
-// const WS_HOST = 'https://aa270f00.ngrok.io'
+const tripdetails = null;
 
 export default class DriverHome extends React.Component {
   static navigationOptions = {
@@ -22,20 +24,35 @@ export default class DriverHome extends React.Component {
     header: null
   };
  constructor(props) {
-    let socket = io(WS_HOST)
 
-    super(props);
-    console.log('driver home')
-    socket.on("connect", (e)=>{
-      console.log('connected', e);
-      socket.emit('ms', {msg: 'asf'})
+//let socket = io(WS_HOST)
+    socket.on("connect", ()=>{
+      console.log('driver connected to server');
     });
-    socket.on("ms", (e)=>{
-      console.log('received ms', e)
-    });
-    console.log('socket', socket)
+
+socket.on('triprequest', (data)=>{
+        tripdetails = data.data;
+        console.log('tripssssss', tripdetails);
+      });
+
+//console.log(tripdetails.pickUpAddress);
+
+
+  super(props);
+console.ignoredYellowBox = [
+    'Setting a timer'
+]
+ this.state={
+  show:false,
+  data:{}
+ }
 }
 
+
+
+componentDidMount(){
+
+}
 
 
 closeDrawer = () =>{
@@ -47,8 +64,10 @@ closeDrawer = () =>{
   };
 
 
-  render() {
-    return (
+render() {
+
+if(tripdetails == null){
+return (
 
 <Drawer  
 ref={(ref) => { this.drawer = ref;}}
@@ -58,13 +77,17 @@ onClose={()=> this.closeDrawer()}
 
 <View style = {styles.container}>
  <AppHeader  openDrawer={this.openDrawer.bind(this)}/>
- <Button >
- </Button>
-  <Text>My driver content here </Text>
-  </View>
-  
+ </View>
 </Drawer>
   );
+}
+else
+return (
+     <View style={{flex:1}}>
+       <TripRequest  pickName={tripdetails.pickUpAddress} dropoffName={tripdetails.dropOffAddress} /> 
+     </View>
+  );
+
   }
 }
 
