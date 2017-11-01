@@ -21,7 +21,7 @@ export default class SearchBox extends React.Component {
       <Input  style={styles.inputSearch} 
        placeholder="Pick-Up Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'pick-up')}}
-       //value={this.props.originName }
+       value={this.props.originName }
        onFocus={() => { this.props.displayFare(false)}}
        onBlur={() => { this.props.displayFare(true)}}
       />
@@ -33,7 +33,7 @@ export default class SearchBox extends React.Component {
       <Input  style={styles.inputSearch}  
        placeholder="Drop-Off Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'drop-off')}}
-      // value={this.props.destinationName}
+       value={this.props.destinationName}
        onFocus={() => { this.props.displayFare(false) }}
        onBlur={() => { this.props.displayFare(true) }}
       />

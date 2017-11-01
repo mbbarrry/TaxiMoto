@@ -35,7 +35,10 @@ export default class TripRequest extends React.Component {
          <Text style={styles.termsText}>By booking you accept our T&C </Text>
 
          <View style={{flex:1, flexDirection:'row'}}>
-         <Button style={styles.btnStyle1} >
+         <Button style={styles.btnStyle1} 
+
+          onPress={this.props.onPressAction}
+         >
           <Text style={styles.btnText}> Confirm </Text>
          </Button>
 

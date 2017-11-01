@@ -6,8 +6,7 @@ import {
   Dimensions
 }
 from "react-native";
-import io from 'socket.io-client/dist/socket.io'
-//import socket from '../server/config'
+import ws from '../server/serverConfig'
 import { Container, Drawer, Header, Content, Toast, Button, Text, Icon , Left, Right} from 'native-base';
 import AppHeader from './appHeader'
 import Sidebar from './sideBar'
@@ -21,9 +20,7 @@ import calculateFare from './fareCalculator'
 import Book from './Book'
 import Bookingbtn from './Bookingbtn'
 import TripInfo from './TripInfo'
-
-
-const WS_HOST = 'http://192.168.56.1:3000';
+import DriverInfo from './driverInfo'
 
 const {width, height}= Dimensions.get('window'); 
 
@@ -36,9 +33,14 @@ const LONGITUDE_DELTA = LATTITUDE_DELTA * ASPECT_RATIO;
 var watchID = null;
 
 
+
+//let prevState = null;
+
+let driver_info=null;
+
 export default class MapContainer extends React.Component{
 
-static navigationOptions = {
+  static navigationOptions = {
     title:'',
     header: null
   };
@@ -48,9 +50,21 @@ static navigationOptions = {
   destination = null;
 
 constructor (props){
- 
+ // console.log('constructor');
   super(props);
-  this.state={
+
+  // ws.emit('customer:connected', {
+  //     "userName": "barry",
+  // });
+  
+
+  this.state= {
+
+      userName:'Barry',
+      phone:'0112383883',
+      distance:'3 km away',
+      visible: true,
+
     predictions:[],
     region:{
       latitude:3.253502,
@@ -81,20 +95,19 @@ constructor (props){
       showToast: false,
       displayReq:false,
       markerids:['marker1', 'marker2'],
+      status:null
    },
      this.mapRef = null;
+     //console.log('prevState', prevState);
 
-     status: null;
-
-console.ignoredYellowBox = [
-    'Setting a timer'
-]
+  console.ignoredYellowBox = [
+      'Setting a timer'
+  ]
 
 }
 
-
-
 componentDidMount(){
+
     
    //  Permissions.check('location', 'whenInUse')
      //  .then(response => {
@@ -151,16 +164,17 @@ componentDidMount(){
       this.setState({initialRegion: lastRegion, markerPosition: lastRegion});
   });
 
+
+
+
 }
 
 componentWillUnmount(){
-
-
+  //console.log('componentWillUnmount');
   navigator.geolocation.clearWatch(this.watchId);
+
+ // prevState = this.state;
 }
-
-
-
 //function to get the google places predictions
 
 displayPredictions(text, type){
@@ -201,8 +215,8 @@ if (predictionType == 'pick-up') {
     origin:this.origin,
     destination:this.destination,
   });
-  console.log('origin and dest',selectedItem);
-  console.log('des...', this.destination);
+ // console.log('origin and dest',selectedItem);
+  //console.log('des...', this.destination);
 }
 
 
@@ -240,7 +254,7 @@ getDistanceMatrix(origin, destination){
 //function to calculate the fare  
 
 gettheFare(distance, duration){
-      if (distance !==null) {
+    if (distance !==null) {
        const fare= calculateFare(
             this.state.dummyNumbers.baseFare,
             this.state.dummyNumbers.timeRate,
@@ -252,8 +266,8 @@ gettheFare(distance, duration){
        this.setState({
             totalfare: [fare]
          });
-       console.log('my fare', this.state.totalfare[0]);
-         }
+     //  console.log('my fare', this.state.totalfare[0]);
+    }
 }
 
 
@@ -271,9 +285,9 @@ RNGooglePlaces.lookUpPlaceByID(destlatlong.placeID)
             long : coordinate.longitude
           }
           });
-          console.log("any", coordinate);
-          console.log('the lat', this.state.destinationcords.lat);
-          console.log('long', this.state.destinationcords.long);
+        //  console.log("any", coordinate);
+          //console.log('the lat', this.state.destinationcords.lat);
+          //console.log('long', this.state.destinationcords.long);
         
         } catch (e) {
           console.error(e);
@@ -286,35 +300,68 @@ RNGooglePlaces.lookUpPlaceByID(destlatlong.placeID)
 //function to fit  the map the supplied markers 
 
 componentDidUpdate(){
+ // console.log('componentDidUpdate');
   if(this.mapRef !==null){
   this.mapRef.fitToSuppliedMarkers(
         this.state.markerids,
         false, // not animateds
       );
 }
+
 }
+
+
+componentWillMount(){
+  ws.on('trip-info',  (data)=> {
+    console.log('stored data',data);
+    this.setState({
+       destination: data.dropOffAddress,
+       origin:data.pickUpAddress,
+       fare: data.fare,
+       status:data.status
+    });
+  });
+
+  // console.log('componentWillMount');
+
+ws.on('request accepted', (data)=>{
+  if(data !== null)
+  var driver_info= data;
+     console.log('response', driver_info);
+
+Alert.alert(
+  'Driver Found!',
+  'Get ready driver is on the way',
+  [
+    {text: 'OK', onPress: () => console.log('OK Pressed')}
+  ],
+  { cancelable: false }
+)
+
+this.setState({
+status: driver_info.status
+});
+});
+
+}
+
 
 //function to send request to driver
 
 requestDriver(){
-  
-  this.setState({status: 'pending' });
-
- let socket = io(WS_HOST)
-socket.on("connect", ()=>{
-      console.log('customer connected to server');  
-  socket.emit('request', {
+this.setState({status: 'pending' });
+ws.emit('request', {
     "userName": "barry",
     "pickUpAddress": this.state.origin.primaryText,
     "dropOffAddress": this.state.destination.primaryText ,
     "fare": this.state.totalfare[0],
-    "status": this.state.status
-    });
-   });
+    "status": 'pending'
+});
 
+// setTimeout(function(){
+// this.changestate();
+// },3000);
 }
-
-
 
 
 //function to close drawer
@@ -327,15 +374,14 @@ closeDrawer = () =>{
     this.drawer._root.open()
   };
 
-
-
 render() {
   return(
-
-
 <Container>  
 {
-  this.state.status ==null  &&
+  
+  this.state.status == 'pending' ? <TripInfo  
+     originName={ this.state.origin.primaryText }
+     destinationName={ this.state.destination.primaryText}/> :
 
 <Drawer  
 ref={(ref) => { this.drawer = ref;}}
@@ -392,30 +438,22 @@ onClose={()=> this.closeDrawer()}
        <Bookingbtn onPressAction={()=> {this.requestDriver()}} />
    }
 
+   {
+    this.state.visible == true &&
+    <DriverInfo />
+   }
+
     </View>
    </View>
 
    </Drawer> 
-
-   ||
-
-     <TripInfo  
-     originName={this.origin !== null && this.state.origin.primaryText}
-     destinationName={this.destination !== null && this.state.destination.primaryText}
-     />
-
-
 }
 
-
 </Container>
-
-
 
   );
 }
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -430,5 +468,9 @@ const styles = StyleSheet.create({
   }
 });
 
+
+ws.on("connect", ()=>{
+      console.log('customer connected to server');  
+});
 
 module.exports = MapContainer;
