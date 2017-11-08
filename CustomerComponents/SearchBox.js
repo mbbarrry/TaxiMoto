@@ -5,13 +5,17 @@ import { InputGroup, Text, Header, Content, Form, Item, Input} from 'native-base
 import Icon from "react-native-vector-icons/FontAwesome";
 
 var width = Dimensions.get("window").width;
+
+let origin= null;
+
 export default class SearchBox extends React.Component {
  constructor(props) {
   super(props);
-    
- }
+   
+}
 
-  render() {
+
+render() {
 
     return (
 <View style={styles.SearchBox}>
@@ -21,7 +25,7 @@ export default class SearchBox extends React.Component {
       <Input  style={styles.inputSearch} 
        placeholder="Pick-Up Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'pick-up')}}
-       value={this.props.originName }
+       value={this.props.destination}
        onFocus={() => { this.props.displayFare(false)}}
        onBlur={() => { this.props.displayFare(true)}}
       />
@@ -33,7 +37,7 @@ export default class SearchBox extends React.Component {
       <Input  style={styles.inputSearch}  
        placeholder="Drop-Off Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'drop-off')}}
-       value={this.props.destinationName}
+       //value={this.props.destinationName}
        onFocus={() => { this.props.displayFare(false) }}
        onBlur={() => { this.props.displayFare(true) }}
       />
@@ -79,3 +83,4 @@ const styles= StyleSheet.create({
     paddingLeft:10
   }
   });
+

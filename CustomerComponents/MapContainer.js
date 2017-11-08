@@ -59,12 +59,9 @@ constructor (props){
   
 
   this.state= {
-
-      userName:'Barry',
-      phone:'0112383883',
-      distance:'3 km away',
+      c_Name:'Barry',
+      c_Phone:'0112383883',
       visible: true,
-
     predictions:[],
     region:{
       latitude:3.253502,
@@ -95,7 +92,9 @@ constructor (props){
       showToast: false,
       displayReq:false,
       markerids:['marker1', 'marker2'],
-      status:null
+      status: null,
+      displayInfo: false,
+      isMapReady: false,
    },
      this.mapRef = null;
      //console.log('prevState', prevState);
@@ -103,11 +102,13 @@ constructor (props){
   console.ignoredYellowBox = [
       'Setting a timer'
   ]
+console.log(this.state.c_Name, this.state.c_Phone);
 
 }
 
 componentDidMount(){
 
+// this.setState({status: 'pending' });
     
    //  Permissions.check('location', 'whenInUse')
      //  .then(response => {
@@ -175,6 +176,13 @@ componentWillUnmount(){
 
  // prevState = this.state;
 }
+
+
+componentWillMount(){
+
+}
+
+
 //function to get the google places predictions
 
 displayPredictions(text, type){
@@ -312,35 +320,13 @@ componentDidUpdate(){
 
 
 componentWillMount(){
-  ws.on('trip-info',  (data)=> {
-    console.log('stored data',data);
-    this.setState({
-       destination: data.dropOffAddress,
-       origin:data.pickUpAddress,
-       fare: data.fare,
-       status:data.status
-    });
-  });
-
   // console.log('componentWillMount');
-
 ws.on('request accepted', (data)=>{
-  if(data !== null)
+  if(data !== null)  
   var driver_info= data;
      console.log('response', driver_info);
-
-Alert.alert(
-  'Driver Found!',
-  'Get ready driver is on the way',
-  [
-    {text: 'OK', onPress: () => console.log('OK Pressed')}
-  ],
-  { cancelable: false }
-)
-
-this.setState({
-status: driver_info.status
-});
+this.setState({displayInfo: true});
+console.log(this.state.displayInfo);
 });
 
 }
@@ -351,7 +337,9 @@ status: driver_info.status
 requestDriver(){
 this.setState({status: 'pending' });
 ws.emit('request', {
-    "userName": "barry",
+    "customerName": this.state.c_Name,
+    "customerPhone": this.state.c_Phone,
+    "location":this.state.markerPosition,
     "pickUpAddress": this.state.origin.primaryText,
     "dropOffAddress": this.state.destination.primaryText ,
     "fare": this.state.totalfare[0],
@@ -374,6 +362,11 @@ closeDrawer = () =>{
     this.drawer._root.open()
   };
 
+ onMapLayout = () => {
+    this.setState({ isMapReady: true });
+  }
+
+
 render() {
   return(
 <Container>  
@@ -388,33 +381,38 @@ ref={(ref) => { this.drawer = ref;}}
 content={<Sidebar/>}
 onClose={()=> this.closeDrawer()} 
 >
-
    <View style={{flex:1}}>
    <AppHeader openDrawer={this.openDrawer.bind(this)}/>
    <View style={styles.container}>
+    
+{
+    this.state.displayInfo == true  ?
 
+    <DriverInfo dName={this.state.driver_info.driverName} dPhone={this.state.driver_info.driverPhone} 
+    />   
+    
+    :
+    <View style={styles.map}>
     <MapView
-    style={styles.map}
-    region={this.state.region}
-    ref={(ref) => { this.mapRef = ref }}>
-
+     style={styles.map}
+     region={this.state.region}
+     onLayout={this.onMapLayout}
+     ref={(ref) => { this.mapRef = ref }}>
+{
+   this.state.isMapReady &&
    <MapView.Marker  
     coordinate={this.state.markerPosition}
     pinColor="green"
     identifier={this.state.markerids[0]}
    />
- 
-   {
-    this.state.destinationcords.lat !== null  &&
     <MapView.Marker  
     coordinate={{latitude: this.state.destinationcords.lat, longitude: this.state.destinationcords.long}}
     pinColor="red"
     identifier={this.state.markerids[1]}
     />
-    }
-
+   
+}
    </MapView>
-
     <SearchBox handleInputChange={this.displayPredictions.bind(this)}  
     originName={this.origin !== null && this.state.origin.primaryText}
     destinationName={this.destination !== null && this.state.destination.primaryText}
@@ -438,20 +436,17 @@ onClose={()=> this.closeDrawer()}
        <Bookingbtn onPressAction={()=> {this.requestDriver()}} />
    }
 
-   {
-    this.state.visible == true &&
-    <DriverInfo />
-   }
+   </View>
+}
 
     </View>
    </View>
-
    </Drawer> 
 }
 
 </Container>
 
-  );
+);
 }
 }
 

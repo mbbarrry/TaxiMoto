@@ -1,27 +1,24 @@
 
 import React from 'react';
 import {StyleSheet, View, Alert, Text, StatusBar, Dimensions } from "react-native";
-import {Button, Toast} from 'native-base';
+import {Button, Toast, Spinner} from 'native-base';
 import Icon from "react-native-vector-icons/FontAwesome";
-
+//import { Bubbles, DoubleBounce, Bars, Pulse } from 'react-native-loader';
 const { width } = Dimensions.get("window");
 
 export default class TripInfo extends React.Component {
  constructor(props) {
   super(props);
-
- }
+     
+   }
 
   render() {
     return (
 
 <View style={styles.container}>
-
-    
-
       <Text style={styles.text}>Please wait while we find you a driver</Text>
       <Icon name="map-marker"  style={styles.locationIcon}/>
-
+      <Spinner color='red' size={50} />
      <View style={{flex:1, flexDirection:'column', alignItems:'center', justifyContent:'center'}}> 
        <View style={styles.pickup} >
         <Text>{this.props.originName}</Text>
