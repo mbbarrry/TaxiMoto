@@ -8,41 +8,40 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   TextInput,
-  Dimensions
+  Dimensions,
+  TouchableWithoutFeedback
 } from 'react-native';
 
 import { Container, Drawer, Header, Content, Form, Item, Input,Icon, Button } from 'native-base';
-import AppHeader from './appHeader'
-import Sidebar from './sideBar'
-import TripRequest from './TripRequest'
+import MapView from "react-native-maps";
+import Permissions from 'react-native-permissions'
 import socket from '../server/config'
-
-
+import DriverStandbyView from './views/DriverStandbyView'
+import DriverConfirmRequestView from './views/DriverConfirmRequestView'
+import DEnroutetoCusView from './views/DEnroutetoCusView'
 const {width, height}= Dimensions.get('window'); 
-
 const SCREEN_HEIGHT = height;
 const SCREEEN_WIDTH = width;
 const ASPECT_RATIO = width/height;
 const LATTITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATTITUDE_DELTA * ASPECT_RATIO;
-
 var watchID = null;
-
-
  
 export default class DriverHome extends React.Component {
+  
   static navigationOptions = {
     title:'',
     header: null
   };
- constructor(props) {
+
+
+ constructor(props){
  console.log('constructor');
   super(props);
-console.ignoredYellowBox = [
-    'Setting a timer'
-]
  
-this.state= {
+this.state={
+      d_Name:'Ousman',
+      d_Phone:'01123840000',
       region:{
       latitude:3.253502,
       longitude:101.653326,
@@ -53,17 +52,15 @@ this.state= {
       latitude:3.253502,
       longitude:101.653326,
     },
-    tripdetails:null
+   tripdetails:{},
+   infoText:"You'are online",
+   showmap:false, 
+   showDconfirm:false
   }
-
 }
 
-
-componentDidMount(){
-  console.log('componentDidMount');
-
- 
-   //  Permissions.check('location', 'whenInUse')
+componentDidMount(){   
+//  Permissions.check('location', 'whenInUse')
      //  .then(response => {
       //   this.setState({ locationPermission: response })
      //  });
@@ -85,7 +82,6 @@ componentDidMount(){
      // ]
    // )
 
-
     navigator.geolocation.getCurrentPosition((position) => {
       
       var lat = position.coords.latitude;
@@ -96,12 +92,12 @@ componentDidMount(){
         longitude: long,
         latitudeDelta: LATTITUDE_DELTA,
         longitudeDelta: LONGITUDE_DELTA
-      };
+       };
       
       this.setState({region: initialRegion, markerPosition: initialRegion});
     },
      (error) => alert(JSON.stringify(error)),
-    {enableHighAccurracy: true, timeout: 20000, maximuAge: 1000}
+   {enableHighAccurracy: false, timeout: 20000, maximuAge: 1000}
     );
 
     this.watchID  = navigator.geolocation.watchPosition((position) => {
@@ -117,118 +113,106 @@ componentDidMount(){
       };
       this.setState({initialRegion: lastRegion, markerPosition: lastRegion});
   });
-}
 
+
+}    
 
 
 componentWillUnmount(){
-  console.log('componentWillUnmount');
   navigator.geolocation.clearWatch(this.watchId);
 }
 
 
 
 componentWillMount(){
- 
   socket.on('triprequest', (data)=>{
-   if(data !==null)
+   if(data !==null){
     this.setState({
+     showDconfirm:true,
      tripdetails: data.data
      });  
         console.log('tripssssss', this.state.tripdetails);
+    }
       });
 
-}
 
+}
 
 componentDidUpdate(){
-  console.log('componentDidUpdate');
+ // console.log('componentDidUpdate');
+//   if(this.mapRef !==null){
+//   this.mapRef.fitToSuppliedMarkers(
+//         this.state.markerids,
+//         false, // not animateds
+//       );
+// }
 
 }
-
-
-closeDrawer = () =>{
-    this.drawer._root.close()
-  };
-
-  openDrawer = () => {
-    this.drawer._root.open()
-  };
 
 
 //function to accept triprequest
 respondtoRequest(){
+this.setState({
+showDconfirm:false,
+showmap:true
+});
 if(this.state.tripdetails.userName !== null){
 socket.emit('response', {
-    "DriverName": "Ousman",
+    "driverName": this.state.d_Name,
+    "driverPhone": this.state.d_Phone,
     "status": 'confirm',
     "location": this.state.region, 
     "CustomerName":this.state.tripdetails.userName
     });
-
-
-Alert.alert(
-  'Customer Info',
-  'Name: BArrry',
-  [
-    {text: 'OK', onPress: () => console.log('OK Pressed')}
-  ],
-  { cancelable: false }
-)
-
 }
-
-// setTimeout(function(){
-//   console.log('reset')
-// this.setState({
-//   tripdetails: null
-// });
-//  },2000);
- 
+console.log(this.state.showDconfirm, this.state.showmap);
 }
 
 
-
-componentShouldRender () {
-  console.log('componentShouldRender');
-  return true;
+onPressOnline(){
+  this.setState({
+    infoText:"You'are online",
+    driverStatus:"online"
+  });
+  console.log("set online");
 }
+
+
+onPressOffline(){
+  this.setState({
+    infoText:"You'are offline",
+    driverStatus:"offline"
+  });
+  console.log("set offline");
+}
+
+
 
 
 render() {
 
-if(this.state.tripdetails ==null){
-return (
-
-<Drawer  
-ref={(ref) => { this.drawer = ref;}}
-content={<Sidebar/>}
-onClose={()=> this.closeDrawer()} 
->
-
-<View style = {styles.container}>
- <AppHeader  openDrawer={this.openDrawer.bind(this)}/>
- </View>
-</Drawer>
-  );
+if(this.state.showDconfirm == true){
+  return( 
+   <DriverConfirmRequestView  pickName={this.state.tripdetails.pickUpAddress} dropoffName={this.state.tripdetails.dropOffAddress}
+    onPressConfirm={()=> this.respondtoRequest()} /> 
+);
 }
+
+
+else if(this.state.showDconfirm == false && this.state.showmap == true){
+  return (
+    <DEnroutetoCusView  d_cords={this.state.region}  d_markP={this.state.markerPosition}  c_cords={this.state.tripdetails.location}
+    />
+    );
+}
+
 else
-return (
-     <View style={{flex:1}}>
-       <TripRequest  pickName={this.state.tripdetails.pickUpAddress} dropoffName={this.state.tripdetails.dropOffAddress}  
-       onPressAction={()=> {this.respondtoRequest()}}
-        />
-     </View>
-  );
+return( 
+<DriverStandbyView infoText={this.state.infoText}  onlineBtn={()=>this.onPressOnline()} offlineBtn={()=>this.onPressOffline()} /> 
+);
 
-  }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  }
-  });
+}
 
  socket.on("connect", ()=>{
       console.log('driver connected to server');

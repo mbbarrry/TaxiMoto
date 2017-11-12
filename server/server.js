@@ -1,7 +1,7 @@
 var app = require('express')();
 var server = require('http').Server(app);
 var port = process.env.PORT || 3000;
-var io = require('socket.io').listen(server);
+var io = require('socket.io').listen(server, {pingTimeout: 30000});
 var bodyParser = require("body-parser");
 var BroadCastRequest= require("./BroadCastRequest");
 

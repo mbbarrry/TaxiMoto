@@ -57,7 +57,6 @@ constructor (props){
   //     "userName": "barry",
   // });
   
-
   this.state= {
 
       userName:'Barry',
@@ -353,7 +352,8 @@ this.setState({status: 'pending' });
 ws.emit('request', {
     "userName": "barry",
     "pickUpAddress": this.state.origin.primaryText,
-    "dropOffAddress": this.state.destination.primaryText ,
+    "dropOffAddress": this.state.destination.primaryText,
+    "location": this.state.region,
     "fare": this.state.totalfare[0],
     "status": 'pending'
 });
@@ -396,8 +396,10 @@ onClose={()=> this.closeDrawer()}
     <MapView
     style={styles.map}
     region={this.state.region}
-    ref={(ref) => { this.mapRef = ref }}>
-
+    ref={(ref) => { this.mapRef = ref }}
+    toolbarEnabled
+    >
+    
    <MapView.Marker  
     coordinate={this.state.markerPosition}
     pinColor="green"
@@ -416,8 +418,8 @@ onClose={()=> this.closeDrawer()}
    </MapView>
 
     <SearchBox handleInputChange={this.displayPredictions.bind(this)}  
-    originName={this.origin !== null && this.state.origin.primaryText}
-    destinationName={this.destination !== null && this.state.destination.primaryText}
+    originName={this.state.origin}
+    destinationName={this.state.destination}
     displayFare={(displayFare) => {this.setState({...this.state, displayFare: displayFare})}}
     />
    
@@ -438,10 +440,6 @@ onClose={()=> this.closeDrawer()}
        <Bookingbtn onPressAction={()=> {this.requestDriver()}} />
    }
 
-   {
-    this.state.visible == true &&
-    <DriverInfo />
-   }
 
     </View>
    </View>

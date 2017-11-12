@@ -11,36 +11,73 @@ export default class SearchBox extends React.Component {
     
  }
 
+
+
+
   render() {
 
     return (
 <View style={styles.SearchBox}>
   <View style={styles.inputWrapper}>
+  {
+    this.props.originName !== null ?
   <InputGroup>
       <Icon name="search" style={{fontSize:20, color:'green'}} />
       <Input  style={styles.inputSearch} 
        placeholder="Pick-Up Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'pick-up')}}
-       value={this.props.originName }
+       value={this.props.originName.primaryText}
        onFocus={() => { this.props.displayFare(false)}}
        onBlur={() => { this.props.displayFare(true)}}
       />
   </InputGroup>  
+
+:
+
+ <InputGroup>
+      <Icon name="search" style={{fontSize:20, color:'green'}} />
+      <Input  style={styles.inputSearch} 
+       placeholder="Pick-Up Location"
+       onChangeText={(text) => {this.props.handleInputChange(text, 'pick-up')}}
+       onFocus={() => { this.props.displayFare(false)}}
+       onBlur={() => { this.props.displayFare(true)}}
+      />
+  </InputGroup>  
+
+}
   </View>   
 <View style={styles.secondInputWrapper}>
+{
+  this.props.destinationName !==null ? 
   <InputGroup>
       <Icon name="search" style={{fontSize:20, color:'green'}}/>
       <Input  style={styles.inputSearch}  
        placeholder="Drop-Off Location"
        onChangeText={(text) => {this.props.handleInputChange(text, 'drop-off')}}
-       value={this.props.destinationName}
+       value={this.props.destinationName.primaryText}
+       onFocus={() => { this.props.displayFare(false) }}
+       onBlur={() => { this.props.displayFare(true) }}
+      />
+  </InputGroup>   
+
+:
+
+ <InputGroup>
+      <Icon name="search" style={{fontSize:20, color:'green'}}/>
+      <Input  style={styles.inputSearch}  
+       placeholder="Drop-Off Location"
+       onChangeText={(text) => {this.props.handleInputChange(text, 'drop-off')}}
        onFocus={() => { this.props.displayFare(false) }}
        onBlur={() => { this.props.displayFare(true) }}
       />
   </InputGroup>  
-    
-  </View>   
 
+
+ }
+
+
+
+  </View>   
 </View>
          
   );
