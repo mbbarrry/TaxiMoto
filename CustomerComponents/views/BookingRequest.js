@@ -1,58 +1,46 @@
-
 import React from 'react';
-import {StyleSheet, View, Alert, Text, StatusBar, Dimensions } from "react-native";
-import {Button, Toast} from 'native-base';
-import Icon from "react-native-vector-icons/FontAwesome";
+import {
+  AppRegistry,
+  Text,
+  StyleSheet,
+  View,
+  Alert,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  TextInput,
+  Dimensions,
+  TouchableWithoutFeedback,
+  ToastAndroid 
+} from 'react-native';
 
-const { width } = Dimensions.get("window");
+import { Container, Drawer, Header, Content, Form, Item, Input, Button } from 'native-base';
+import Icon from 'react-native-vector-icons/FontAwesome';
+const {width, height}= Dimensions.get('window'); 
 
-export default class TripRequest extends React.Component {
- constructor(props) {
-  super(props);
-    
- }
+const BookingRequest=(props)=>(
 
-  render() {
-    return (
 
 <View style={styles.container}>
-
-
-      <Text style={styles.text}>W've got you customer!</Text>
+      <Text style={styles.text}>Please wait while we find you a driver</Text>
       <Icon name="map-marker"  style={styles.locationIcon}/>
-
      <View style={{flex:1, flexDirection:'column', alignItems:'center', justifyContent:'center'}}> 
        <View style={styles.pickup} >
-        <Text>{this.props.pickName}</Text>
+        <Text>{this.props.originName}</Text>
         </View>
-
         <Icon name="long-arrow-down"  style={styles.toArrow}/>
-        
         <View style={styles.dropoff} >
-        <Text>{this.props.dropoffName}</Text>
+        <Text>{this.props.destinationName}</Text>
         </View>
-
          <Text style={styles.termsText}>By booking you accept our T&C </Text>
 
-         <View style={{flex:1, flexDirection:'row'}}>
-         <Button style={styles.btnStyle1} 
-
-          onPress={this.props.onPressAction}
-         >
-          <Text style={styles.btnText}> Confirm </Text>
+         <Button style={styles.btnStyle} >
+          <Text style={styles.btnText}> Cancel </Text>
          </Button>
-
-         <Button style={styles.btnStyle2} >
-          <Text style={styles.btnText}> Cancel</Text>
-         </Button>
-         </View>
     </View>
-        
-
 </View>   
-  );
-  }
-}
+
+)
+
 const styles= StyleSheet.create({
     container:{ 
     flex: 1,
@@ -107,36 +95,22 @@ const styles= StyleSheet.create({
         marginTop:15
     },
 
-     btnStyle1: {
-        justifyContent:"center",
-        alignItems: 'center',
-        borderRadius: 7,
-        backgroundColor: 'green',
-        height: 45,
-        width: width*0.4,
-        marginTop:20,
-        margin: 10,
-        paddingHorizontal: 10
-      },
-
-btnStyle2: {
+     btnStyle: {
         justifyContent:"center",
         alignItems: 'center',
         borderRadius: 7,
         backgroundColor: 'red',
         height: 45,
-        width: width*0.4,
+        width: width*0.7,
         marginTop:20,
         margin: 10,
         paddingHorizontal: 10
       },
-
-
-
        btnText: {
         fontSize: 20,
         color: 'rgb(236, 240, 241)'
-    },
+    }
 
-  });
-module.exports = TripRequest;
+ });   
+
+module.exports= BookingRequest;

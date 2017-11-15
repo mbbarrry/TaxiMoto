@@ -15,10 +15,16 @@ import {
 import { Container, Drawer, Header, Content, Form, Item, Input,Icon, Button } from 'native-base';
 import MapView from "react-native-maps";
 import Permissions from 'react-native-permissions'
+import request from '../CustomerComponents/request'
 import socket from '../server/config'
-import DriverStandbyView from './views/DriverStandbyView'
-import DriverConfirmRequestView from './views/DriverConfirmRequestView'
-import DEnroutetoCusView from './views/DEnroutetoCusView'
+import DriverStandby from './views/DriverStandby'
+import DriverConfirmRequest from './views/DriverConfirmRequest'
+import DriverEnroute from './views/DriverEnroute'
+import Trackpickup from './views/Trackpickup'
+import Trackdropoff from './views/Trackdropoff'
+import Payment from './views/Payment'
+import RateComplaint from './views/RateComplaint'
+
 const {width, height}= Dimensions.get('window'); 
 const SCREEN_HEIGHT = height;
 const SCREEEN_WIDTH = width;
@@ -53,6 +59,8 @@ this.state={
       longitude:101.653326,
     },
    tripdetails:{},
+   distance:{},
+   duration:{},
    infoText:"You'are online",
    showmap:false, 
    showDconfirm:false
@@ -122,8 +130,6 @@ componentWillUnmount(){
   navigator.geolocation.clearWatch(this.watchId);
 }
 
-
-
 componentWillMount(){
   socket.on('triprequest', (data)=>{
    if(data !==null){
@@ -131,11 +137,10 @@ componentWillMount(){
      showDconfirm:true,
      tripdetails: data.data
      });  
+        this.getDuration();   
         console.log('tripssssss', this.state.tripdetails);
-    }
-      });
-
-
+  }
+    });
 }
 
 componentDidUpdate(){
@@ -147,6 +152,35 @@ componentDidUpdate(){
 //       );
 // }
 
+}
+
+
+getDuration(){
+ return request.get("https://maps.googleapis.com/maps/api/distancematrix/json")  
+     .query({
+        //origin: this.state.origin.latitude + "," + this.state.origin.longitude,
+        //destination: this.state.destination.latitude + "," + this.state.destination.longitude,
+        origins: this.state.region.latitude + "," + this.state.region.longitude,
+        destinations: this.state.tripdetails.CustomerCords.latitude + ","+ this.state.tripdetails.CustomerCords.longitude,
+        travelMode:"bicycling",
+        key:"AIzaSyAMMYiE-JJBJGtUNxzSXtcQPCcLp-cDgKE"
+      })
+      .finish((error, data)=>{
+        try {
+          var distanceMatrix = data.body.rows[0].elements[0];
+          this.setState({
+            distance: distanceMatrix.distance.text,
+            duration : distanceMatrix.duration.text
+          });
+          console.log('results', data);
+          console.log('the distance in m', this.state.distance);
+          console.log('the duration in minutes', this.state.duration);
+          console.log('the object returned',data);
+        } catch (e) {
+          console.error(e);
+          return null;
+        }
+      });    
 }
 
 
@@ -193,22 +227,22 @@ render() {
 
 if(this.state.showDconfirm == true){
   return( 
-   <DriverConfirmRequestView  pickName={this.state.tripdetails.pickUpAddress} dropoffName={this.state.tripdetails.dropOffAddress}
+   <DriverConfirmRequest  pickName={this.state.tripdetails.pickUpAddress} dropoffName={this.state.tripdetails.dropOffAddress}
     onPressConfirm={()=> this.respondtoRequest()} /> 
 );
 }
 
-
 else if(this.state.showDconfirm == false && this.state.showmap == true){
   return (
-    <DEnroutetoCusView  d_cords={this.state.region}  d_markP={this.state.markerPosition}  c_cords={this.state.tripdetails.location}
+    <DriverEnroute  d_coords={this.state.region}  d_markP={this.state.markerPosition}  c_coords={this.state.tripdetails.CustomerCords}
+    duration={this.state.duration} distance={this.state.distance}
     />
     );
 }
 
 else
 return( 
-<DriverStandbyView infoText={this.state.infoText}  onlineBtn={()=>this.onPressOnline()} offlineBtn={()=>this.onPressOffline()} /> 
+<DriverStandby infoText={this.state.infoText}  onlineBtn={()=>this.onPressOnline()} offlineBtn={()=>this.onPressOffline()} /> 
 );
 
 }

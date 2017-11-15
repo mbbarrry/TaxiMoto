@@ -7,7 +7,7 @@ import Icon from "react-native-vector-icons/FontAwesome";
 const { width } = Dimensions.get("window");
 
 
-const DriverConfirmRequestView =(props) =>(
+const DriverConfirmRequest =(props) =>(
 
  <View style={styles.container}>
       <Text style={styles.text}>W've got you customer!</Text>
@@ -120,4 +120,4 @@ btnStyle2: {
     },
 
   });
-module.exports = DriverConfirmRequestView;
+module.exports = DriverConfirmRequest;

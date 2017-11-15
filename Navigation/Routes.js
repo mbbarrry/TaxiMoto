@@ -4,7 +4,8 @@ import {
   Text,
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import MapContainer from '../CustomerComponents/MapContainer'
+//import MapContainer from '../CustomerComponents/MapContainer'
+import CustomerHome from '../CustomerComponents/CustomerHome'
 import Main from './Main'
 import DriverHome from '../DriverComponent/DriverHome'
 
@@ -21,7 +22,8 @@ const mapNavigationStateParamsToProps = (SomeComponent) => {
 
 const SimpleApp = StackNavigator({
   Home: { screen: mapNavigationStateParamsToProps(Main) },
-  CustomerHomeScreen: {screen: mapNavigationStateParamsToProps(MapContainer)},
+  //CustomerHomeScreen: {screen: mapNavigationStateParamsToProps(MapContainer)},
+  CustomerHomeScreen: {screen: mapNavigationStateParamsToProps(CustomerHome)},
   DriverScreen: {screen: mapNavigationStateParamsToProps(DriverHome)}
 },
 

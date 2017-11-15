@@ -7,20 +7,22 @@ import {
 }
 from "react-native";
 import ws from '../server/serverConfig'
-import { Container, Drawer, Header, Content, Toast, Button, Text, Icon , Left, Right} from 'native-base';
+import { Container, Drawer, Header, Content, Toast, Button, Text, Icon , Left, Right, Picker} from 'native-base';
 import AppHeader from './appHeader'
 import Sidebar from './sideBar'
-import MapView from "react-native-maps";
 import SearchBox from "./SearchBox"
 import Permissions from 'react-native-permissions'
 import RNGooglePlaces from 'react-native-google-places'
-import SearchResults from './SearchResults'
 import request from './request'
 import calculateFare from './fareCalculator'
-import Book from './Book'
-import Bookingbtn from './Bookingbtn'
-import TripInfo from './TripInfo'
-import DriverInfo from './driverInfo'
+
+import MapContainer from './views/MapContainer'
+import SearchboxContainer from './views/SearchboxContainer'
+import Autoplacesuggestion from './views/Autoplacesuggestion'
+import BookingContainer from './views/BookingContainer'
+import BookingRequest from './views/BookingRequest'
+import Driverinfo from './views/Driverinfo'
+import TrackDriver from './views/TrackDriver'
 
 const {width, height}= Dimensions.get('window'); 
 
@@ -34,11 +36,8 @@ var watchID = null;
 
 
 
-//let prevState = null;
 
-let driver_info=null;
-
-export default class MapContainer extends React.Component{
+export default class CustomerHome extends React.Component{
 
   static navigationOptions = {
     title:'',
@@ -59,52 +58,50 @@ constructor (props){
   
   this.state= {
 
-      userName:'Barry',
-      phone:'0112383883',
-      visible: true,
+    userName:'Barry',
+    phone:'0112383883',
     predictions:[],
+
     region:{
       latitude:3.253502,
       longitude:101.653326,
       latitudeDelta: 0.0022,
       longitudeDelta: 0.0422,
     },
+
     markerPosition:{
       latitude:3.253502,
       longitude:101.653326,
     },
-      origin:{} ,
-      destination:{},
-      distance:{},
-      duration:{},
-      dummyNumbers:{
-        baseFare:0.4,
-        timeRate:0.14,
-        distanceRate:0.97,
-        surge:1
-      },
-      
-      destinationcords:{
-      lat:null,
-      long:null,
-      },
-      totalfare:[],
-      showToast: false,
-      displayReq:false,
-      markerids:['marker1', 'marker2'],
-      status:null
-   },
-     this.mapRef = null;
+    origin:{} ,
+    destination:{},
+    distance:{},
+    duration:{},
+    dummyNumbers:{
+    baseFare:0.4,
+    timeRate:0.14,
+    distanceRate:0.97,
+    surge:1
+    },
 
-  console.ignoredYellowBox = [
-      'Setting a timer'
-  ]
+    destinationcords:{
+    lat:null,
+    long:null,
+    },
 
+    totalfare:[],
+    showToast: false,
+    displayReq:false,
+    markerids:['marker1', 'marker2'],
+    status:null,
+    selected: "key1"
+};
+    this.mapRef = null;
+   
+    
 }
 
 componentDidMount(){
-
-    
    //  Permissions.check('location', 'whenInUse')
      //  .then(response => {
       //   this.setState({ locationPermission: response })
@@ -126,7 +123,6 @@ componentDidMount(){
         //  : {text: 'Open Settings', onPress: Permissions.openSettings}
      // ]
    // )
-
 
     navigator.geolocation.getCurrentPosition((position) => {
       
@@ -158,11 +154,7 @@ componentDidMount(){
        longitudeDelta: LONGITUDE_DELTA
       };
       this.setState({initialRegion: lastRegion, markerPosition: lastRegion});
-  });
-
-
-
-
+       });
 }
 
 componentWillUnmount(){
@@ -172,7 +164,6 @@ componentWillUnmount(){
  // prevState = this.state;
 }
 //function to get the google places predictions
-
 displayPredictions(text, type){
   RNGooglePlaces.getAutocompletePredictions(text)
     .then((results) => {
@@ -185,7 +176,6 @@ displayPredictions(text, type){
 
   // console.log('predictions', this.state.predictions);
 }
-
 
 //function to get the selected item from google places prediction
 
@@ -215,10 +205,7 @@ if (predictionType == 'pick-up') {
   //console.log('des...', this.destination);
 }
 
-
-
 //function to get the distance using google distancematrix
-
 getDistanceMatrix(origin, destination){
   // console.log('o:d', origin, destination);
      return request.get("https://maps.googleapis.com/maps/api/distancematrix/json")  
@@ -249,7 +236,6 @@ getDistanceMatrix(origin, destination){
 }
 
 //function to calculate the fare  
-
 gettheFare(distance, duration){
     if (distance !==null) {
        const fare= calculateFare(
@@ -267,9 +253,7 @@ gettheFare(distance, duration){
     }
 }
 
-
 //function to get the latlong of the destination
-
 gethedestinationLatLong(destlatlong){
 //console.log('id', destlatlong);
 RNGooglePlaces.lookUpPlaceByID(destlatlong.placeID)
@@ -293,9 +277,7 @@ RNGooglePlaces.lookUpPlaceByID(destlatlong.placeID)
       });    
 }
 
-
 //function to fit  the map the supplied markers 
-
 componentDidUpdate(){
  // console.log('componentDidUpdate');
   if(this.mapRef !==null){
@@ -309,7 +291,7 @@ componentDidUpdate(){
 
 
 componentWillMount(){
-  ws.on('trip-info',  (data)=> {
+ws.on('trip-info',  (data)=> {
     console.log('stored data',data);
     this.setState({
        destination: data.dropOffAddress,
@@ -317,9 +299,7 @@ componentWillMount(){
        fare: data.fare,
        status:data.status
     });
-  });
-
-  // console.log('componentWillMount');
+});
 
 ws.on('request accepted', (data)=>{
   if(data !== null)
@@ -334,17 +314,14 @@ Alert.alert(
   ],
   { cancelable: false }
 )
-
-this.setState({
-status: driver_info.status
-});
+  this.setState({
+  status: driver_info.status
+  });
 });
 
 }
 
-
 //function to send request to driver
-
 requestDriver(){
 this.setState({status: 'pending' });
 ws.emit('request', {
@@ -362,6 +339,12 @@ ws.emit('request', {
 // },3000);
 }
 
+//function to handle the selected
+onValueChange(value: string) {
+    this.setState({
+      selected: value
+    });
+  }
 
 //function to close drawer
 closeDrawer = () =>{
@@ -373,101 +356,42 @@ closeDrawer = () =>{
     this.drawer._root.open()
   };
 
-render() {
-  return(
-<Container>  
-{
-  
-  this.state.status == 'pending' ? <TripInfo  
-     originName={ this.state.origin.primaryText }
-     destinationName={ this.state.destination.primaryText}/> :
-
-<Drawer  
-ref={(ref) => { this.drawer = ref;}}
-content={<Sidebar/>}
-onClose={()=> this.closeDrawer()} 
->
-
-   <View style={{flex:1}}>
-   <AppHeader openDrawer={this.openDrawer.bind(this)}/>
-   <View style={styles.container}>
-
-    <MapView
-    style={styles.map}
-    region={this.state.region}
-    ref={(ref) => { this.mapRef = ref }}
-    toolbarEnabled
-    >
-    
-   <MapView.Marker  
-    coordinate={this.state.markerPosition}
-    pinColor="green"
-    identifier={this.state.markerids[0]}
-   />
+render(){
  
-   {
-    this.state.destinationcords.lat !== null  &&
-    <MapView.Marker  
-    coordinate={{latitude: this.state.destinationcords.lat, longitude: this.state.destinationcords.long}}
-    pinColor="red"
-    identifier={this.state.markerids[1]}
-    />
-    }
+return(
+<View style={{flex:1, flexDirection:'column'}}>
+<AppHeader  openDrawer={this.openDrawer.bind(this)}/>
 
-   </MapView>
+ <SearchboxContainer  handleInputChange={this.displayPredictions.bind(this)}  
+   originName={this.state.origin}
+   destinationName={this.state.destination}
+   displayFare={(displayFare) => {this.setState({...this.state, displayFare: displayFare})}}  
+/>
 
-    <SearchBox handleInputChange={this.displayPredictions.bind(this)}  
-    originName={this.state.origin}
-    destinationName={this.state.destination}
-    displayFare={(displayFare) => {this.setState({...this.state, displayFare: displayFare})}}
-    />
-   
-    { 
-      this.state.predictions.length > 0 && 
-      <SearchResults predictions={this.state.predictions} handleSelectedItem={this.selectedAddress.bind(this)}  /> 
-    }
-    
-
-    {
-      this.state.displayFare && this.state.totalfare.length > 0 && <Book thefare={this.state.totalfare} />
-      
-    }
-   
-   {
-
-       this.state.displayFare && this.state.totalfare.length > 0  &&  
-       <Bookingbtn onPressAction={()=> {this.requestDriver()}} />
-   }
-
-
-    </View>
-   </View>
-
-   </Drawer> 
+{ 
+  this.state.predictions.length > 0 && 
+  <Autoplacesuggestion predictions={this.state.predictions} handleSelectedItem={this.selectedAddress.bind(this)}  /> 
 }
 
-</Container>
+{
+  this.state.displayFare && this.state.totalfare.length > 0 &&
+  <BookingContainer  thefare={this.state.totalfare}  
+   onPressAction={()=> {this.requestDriver()}}  
+   selectedValue={this.state.selected} onValueChange={this.onValueChange.bind(this)}
+   />
+}
 
-  );
+</View>
+);
+
 }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex:1,
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    alignItems: 'center'
-  },
-  map: {
-    position:'absolute',
-    ...StyleSheet.absoluteFillObject
-  }
-});
 
 
 ws.on("connect", ()=>{
       console.log('customer connected to server');  
 });
 
-module.exports = MapContainer;
+module.exports = CustomerHome;
+
+//<MapContainer c_coords={this.state.region} c_markP={this.state.markerPosition} />
