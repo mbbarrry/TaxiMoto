@@ -11,7 +11,7 @@ import {
   Dimensions,
   TouchableWithoutFeedback
 } from 'react-native';
-
+import StarRating from 'react-native-star-rating';
 import { Container, Drawer, Header, Content, Form, Item, Input,Icon, Button } from 'native-base';
 import MapView from "react-native-maps";
 import Permissions from 'react-native-permissions'
@@ -20,8 +20,6 @@ import socket from '../server/config'
 import DriverStandby from './views/DriverStandby'
 import DriverConfirmRequest from './views/DriverConfirmRequest'
 import DriverEnroute from './views/DriverEnroute'
-import Trackpickup from './views/Trackpickup'
-import Trackdropoff from './views/Trackdropoff'
 import Payment from './views/Payment'
 import RateComplaint from './views/RateComplaint'
 
@@ -61,9 +59,12 @@ this.state={
    tripdetails:{},
    distance:{},
    duration:{},
+   starCount: 0,
+   feedbackText:'',
    infoText:"You'are online",
    showmap:false, 
-   showDconfirm:false
+   showDconfirm:false,
+   Tripcompleted:false
   }
 }
 
@@ -121,7 +122,6 @@ componentDidMount(){
       };
       this.setState({initialRegion: lastRegion, markerPosition: lastRegion});
   });
-
 
 }    
 
@@ -220,6 +220,12 @@ onPressOffline(){
   console.log("set offline");
 }
 
+//function to handle the ratings
+ onStarRatingPress(rating) {
+    this.setState({
+      starCount: rating
+    });
+  }
 
 
 
@@ -229,16 +235,19 @@ if(this.state.showDconfirm == true){
   return( 
    <DriverConfirmRequest  pickName={this.state.tripdetails.pickUpAddress} dropoffName={this.state.tripdetails.dropOffAddress}
     onPressConfirm={()=> this.respondtoRequest()} /> 
-);
-}
+);}
 
 else if(this.state.showDconfirm == false && this.state.showmap == true){
   return (
     <DriverEnroute  d_coords={this.state.region}  d_markP={this.state.markerPosition}  c_coords={this.state.tripdetails.CustomerCords}
     duration={this.state.duration} distance={this.state.distance}
     />
-    );
-}
+    );}
+
+else if(this.state.Tripcompleted){
+  return(
+  <RateComplaint starCount={this.state.starCount}  onStarRatingPress={this.onStarRatingPress.bind(this)}  onChangeText={(text) => this.setState({feedbackText: text})}/>
+  );}
 
 else
 return( 

@@ -6,11 +6,11 @@ import {
   Dimensions
 }
 from "react-native";
+import StarRating from 'react-native-star-rating';
 import ws from '../server/serverConfig'
 import { Container, Drawer, Header, Content, Toast, Button, Text, Icon , Left, Right, Picker} from 'native-base';
 import AppHeader from './appHeader'
 import Sidebar from './sideBar'
-import SearchBox from "./SearchBox"
 import Permissions from 'react-native-permissions'
 import RNGooglePlaces from 'react-native-google-places'
 import request from './request'
@@ -21,8 +21,9 @@ import SearchboxContainer from './views/SearchboxContainer'
 import Autoplacesuggestion from './views/Autoplacesuggestion'
 import BookingContainer from './views/BookingContainer'
 import BookingRequest from './views/BookingRequest'
-import Driverinfo from './views/Driverinfo'
 import TrackDriver from './views/TrackDriver'
+import RatingDriverContainer from './views/RatingDriverContainer'
+
 
 const {width, height}= Dimensions.get('window'); 
 
@@ -61,7 +62,7 @@ constructor (props){
     userName:'Barry',
     phone:'0112383883',
     predictions:[],
-
+    
     region:{
       latitude:3.253502,
       longitude:101.653326,
@@ -88,13 +89,19 @@ constructor (props){
     lat:null,
     long:null,
     },
-
+    
     totalfare:[],
     showToast: false,
     displayReq:false,
     markerids:['marker1', 'marker2'],
     status:null,
-    selected: "key1"
+    selected: "key1",
+    starCount: 0,
+    feedbackText:'',
+    findDriver:false,
+    isVisible: true,
+    TrackDriver:false,
+    Tripcompleted:false
 };
     this.mapRef = null;
    
@@ -322,8 +329,11 @@ Alert.alert(
 }
 
 //function to send request to driver
-requestDriver(){
-this.setState({status: 'pending' });
+findDriver(){
+this.setState({
+  findDriver: true,
+  status: 'pending' 
+});
 ws.emit('request', {
     "userName": "barry",
     "pickUpAddress": this.state.origin.primaryText,
@@ -331,13 +341,22 @@ ws.emit('request', {
     "CustomerCords": this.state.region,
     "DropoffCords":this.state.destinationcords,
     "fare": this.state.totalfare[0],
+    "PaymentMethod":this.state.selected,
     "status": 'pending'
 });
+}
 
 // setTimeout(function(){
 // this.changestate();
 // },3000);
+
+
+onCancelfindDriver(){
+  this.setState({
+   findDriver:false
+  });
 }
+
 
 //function to handle the selected
 onValueChange(value: string) {
@@ -356,12 +375,42 @@ closeDrawer = () =>{
     this.drawer._root.open()
   };
 
+//function to handle the ratings
+ onStarRatingPress(rating) {
+    this.setState({
+      starCount: rating
+    });
+  }
+
+
+
 render(){
  
+if(this.state.findDriver){
+return(
+  <BookingRequest  isVisible={this.state.isVisible} originName={ this.state.origin.primaryText } destinationName={ this.state.destination.primaryText} 
+    onPressAction={()=>{this.onCancelfindDriver()}}
+  />
+  );}
+
+else if(this.state.Driverfoundinfo){
+    return(
+  <View style={{flex:1}}>
+   <AppHeader  openDrawer={this.openDrawer.bind(this)}/>        
+   <TrackDriver c_coords={this.state.region} c_markP={this.state.markerPosition} c_destcoords={this.state.destinationcords}/>   
+  </View>
+);}
+
+else if(this.state.Tripcompleted){
+  return(
+    <RatingDriverContainer  starCount={this.state.starCount}  onStarRatingPress={this.onStarRatingPress.bind(this)}  onChangeText={(text) => this.setState({feedbackText: text})}/>
+);}
+
+ else{
 return(
 <View style={{flex:1, flexDirection:'column'}}>
 <AppHeader  openDrawer={this.openDrawer.bind(this)}/>
-
+<MapContainer c_coords={this.state.region} c_markP={this.state.markerPosition}/>
  <SearchboxContainer  handleInputChange={this.displayPredictions.bind(this)}  
    originName={this.state.origin}
    destinationName={this.state.destination}
@@ -376,13 +425,14 @@ return(
 {
   this.state.displayFare && this.state.totalfare.length > 0 &&
   <BookingContainer  thefare={this.state.totalfare}  
-   onPressAction={()=> {this.requestDriver()}}  
+   onPressAction={()=> {this.findDriver()}}  
    selectedValue={this.state.selected} onValueChange={this.onValueChange.bind(this)}
    />
 }
 
 </View>
-);
+);}
+
 
 }
 }
@@ -394,4 +444,8 @@ ws.on("connect", ()=>{
 
 module.exports = CustomerHome;
 
-//<MapContainer c_coords={this.state.region} c_markP={this.state.markerPosition} />
+
+
+
+//d_coords={this.state.driver_info.location}
+

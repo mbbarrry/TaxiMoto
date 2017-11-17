@@ -17,8 +17,7 @@ import StarRating from 'react-native-star-rating';
 import { Container, Drawer, Header, Content, Form, Input, Button, Picker, InputGroup} from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
 const {width, height}= Dimensions.get('window'); 
-
-const RateComplaints=(props)=>(
+const RatingDriverContainer=(props)=>(
 
 <View style={styles.container}>
     <View style={{marginTop:100}}>
@@ -71,5 +70,5 @@ inputWrapper:{
   },
 });
 
-module.exports= RateComplaints;
+module.exports= RatingDriverContainer;
 
