@@ -21,9 +21,9 @@ const {width, height}= Dimensions.get('window');
 
 const MapContainer=(props)=>(
 <View style={styles.map}>
-	 <MapView
+   <MapView
         style={styles.map}
-        region={props.c_coords}
+        region={props.coords}
         provider="google"
         showsUserLocation={true}
         showsMyLocationButton={true}
@@ -34,12 +34,12 @@ const MapContainer=(props)=>(
         zoomEnabled={true}
         rotateEnabled={true}
       >
-      { props.c_markP  &&
+    
       <MapView.Marker
-          coordinate={props.c_markP}
-          pinColor="green"
+          coordinate={props.markerP}
+          pinColor="red"
        />
-       }  
+      
    </MapView>
 </View>
 
@@ -47,8 +47,8 @@ const MapContainer=(props)=>(
 
 const styles=StyleSheet.create({
  container:{
-		flex:1
-	},
+    flex:1
+  },
  map:{
   position:'absolute',
   ...StyleSheet.absoluteFillObject
@@ -56,3 +56,13 @@ const styles=StyleSheet.create({
 });
 
 module.exports= MapContainer;
+
+
+
+// {
+//       props.destinationation_coords.lat !==null &&
+//       <MapView.Marker
+//           coordinate={props.destinationation_coords}
+//           pinColor="green"
+//           />
+//       }

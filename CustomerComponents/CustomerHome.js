@@ -49,15 +49,7 @@ export default class CustomerHome extends React.Component{
   origin = null;
   destination = null;
 
-constructor (props){
- // console.log('constructor');
-  super(props);
-
-  // ws.emit('customer:connected', {
-  //     "userName": "barry",
-  // });
-  
-  this.state= {
+ initialState = {
 
     userName:'Barry',
     phone:'0112383883',
@@ -101,10 +93,26 @@ constructor (props){
     findDriver:false,
     isVisible: true,
     TrackDriver:false,
-    Tripcompleted:false
+    Tripcompleted:false,
+    driverDetails:{},
+    pickUpduration:'',
+    pickUpdistance:''
 };
+
+constructor (props){
+ // console.log('constructor');
+  super(props);
+
+  this.state = this.initialState
+  // ws.emit('customer:connected', {
+  //     "userName": "barry",
+  // });
+  
+  
     this.mapRef = null;
    
+   // once everything done, reset state
+   // this.setState(this.initialState)
     
 }
 
@@ -298,32 +306,28 @@ componentDidUpdate(){
 
 
 componentWillMount(){
-ws.on('trip-info',  (data)=> {
-    console.log('stored data',data);
-    this.setState({
-       destination: data.dropOffAddress,
-       origin:data.pickUpAddress,
-       fare: data.fare,
-       status:data.status
-    });
-});
+// ws.on('trip-info',  (data)=> {
+//     console.log('stored data',data);
+//     this.setState({
+//        destination: data.dropOffAddress,
+//        origin:data.pickUpAddress,
+//        fare: data.fare,
+//        status:data.status
+//     });
+// });
 
 ws.on('request accepted', (data)=>{
-  if(data !== null)
-  var driver_info= data;
-     console.log('response', driver_info);
-
-Alert.alert(
-  'Driver Found!',
-  'Get ready driver is on the way',
-  [
-    {text: 'OK', onPress: () => console.log('OK Pressed')}
-  ],
-  { cancelable: false }
-)
+  if(data !== null){
   this.setState({
-  status: driver_info.status
+  driverDetails:data,
+  findDriver:false,
+  TrackDriver:true
   });
+  // console.log('driver details from server', data);
+  console.log('driver data', this.state.driverDetails);
+  this.getDurationDistanceOfPickup();
+}
+
 });
 
 }
@@ -335,7 +339,8 @@ this.setState({
   status: 'pending' 
 });
 ws.emit('request', {
-    "userName": "barry",
+    "customerName": this.state.userName,
+    "customerPhone": this.state.phone,
     "pickUpAddress": this.state.origin.primaryText,
     "dropOffAddress": this.state.destination.primaryText,
     "CustomerCords": this.state.region,
@@ -383,6 +388,38 @@ closeDrawer = () =>{
   }
 
 
+//function to get the duration & distance of pickup
+getDurationDistanceOfPickup(){
+ return request.get("https://maps.googleapis.com/maps/api/distancematrix/json")  
+     .query({
+        //origin: this.state.origin.latitude + "," + this.state.origin.longitude,
+        //destination: this.state.destination.latitude + "," + this.state.destination.longitude,
+        origins: this.state.region.latitude + "," + this.state.region.longitude,
+        destinations: this.state.driverDetails.location.latitude + ","+ this.state.driverDetails.location.longitude,
+        travelMode:"bicycling",
+        key:"AIzaSyAMMYiE-JJBJGtUNxzSXtcQPCcLp-cDgKE"
+      })
+      .finish((error, data)=>{
+        try {
+          var distanceMatrix = data.body.rows[0].elements[0];
+          this.setState({
+            pickUpdistance: distanceMatrix.distance.text,
+            pickUpduration : distanceMatrix.duration.text
+          });
+          console.log('results', data);
+          console.log('the distance in m', this.state.distance);
+          console.log('the duration in minutes', this.state.duration);
+          console.log('the object returned',data);
+        } catch (e) {
+          console.error(e);
+          return null;
+        }
+      });    
+}
+
+
+
+
 
 render(){
  
@@ -393,11 +430,14 @@ return(
   />
   );}
 
-else if(this.state.Driverfoundinfo){
+else if(this.state.TrackDriver){
     return(
   <View style={{flex:1}}>
    <AppHeader  openDrawer={this.openDrawer.bind(this)}/>        
-   <TrackDriver c_coords={this.state.region} c_markP={this.state.markerPosition} c_destcoords={this.state.destinationcords}/>   
+   <TrackDriver c_coords={this.state.region} c_markP={this.state.markerPosition} c_destcoords={this.state.destinationcords}
+    pickUpdistance={this.state.pickUpdistance} pickUpduration={this.state.pickUpduration} driverName={this.state.driverDetails.driverName}  
+    driverPhone={this.state.driverDetails.driverPhone}
+   />   
   </View>
 );}
 
@@ -410,7 +450,9 @@ else if(this.state.Tripcompleted){
 return(
 <View style={{flex:1, flexDirection:'column'}}>
 <AppHeader  openDrawer={this.openDrawer.bind(this)}/>
-<MapContainer c_coords={this.state.region} c_markP={this.state.markerPosition}/>
+<MapContainer coords={this.state.region} markerP={this.state.markerPosition}  
+//destinationation_coords={this.state.destinationcords} 
+/>
  <SearchboxContainer  handleInputChange={this.displayPredictions.bind(this)}  
    originName={this.state.origin}
    destinationName={this.state.destination}

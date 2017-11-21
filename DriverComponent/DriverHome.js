@@ -31,6 +31,8 @@ const LATTITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATTITUDE_DELTA * ASPECT_RATIO;
 var watchID = null;
  
+
+
 export default class DriverHome extends React.Component {
   
   static navigationOptions = {
@@ -57,8 +59,8 @@ this.state={
       longitude:101.653326,
     },
    tripdetails:{},
-   distance:{},
-   duration:{},
+   pickUpdistance:'',
+   PickUpduration:'',
    starCount: 0,
    feedbackText:'',
    infoText:"You'are online",
@@ -123,6 +125,7 @@ componentDidMount(){
       this.setState({initialRegion: lastRegion, markerPosition: lastRegion});
   });
 
+
 }    
 
 
@@ -137,7 +140,7 @@ componentWillMount(){
      showDconfirm:true,
      tripdetails: data.data
      });  
-        this.getDuration();   
+        this.getDurationDistanceOfPickup();   
         console.log('tripssssss', this.state.tripdetails);
   }
     });
@@ -154,14 +157,44 @@ componentDidUpdate(){
 
 }
 
-
-getDuration(){
+//function to get the duration & distance of pickup
+getDurationDistanceOfPickup(){
  return request.get("https://maps.googleapis.com/maps/api/distancematrix/json")  
      .query({
         //origin: this.state.origin.latitude + "," + this.state.origin.longitude,
         //destination: this.state.destination.latitude + "," + this.state.destination.longitude,
         origins: this.state.region.latitude + "," + this.state.region.longitude,
-        destinations: this.state.tripdetails.CustomerCords.latitude + ","+ this.state.tripdetails.CustomerCords.longitude,
+        destinations: this.state.tripdetails.DropoffCords.lat + ","+ this.state.tripdetails.DropoffCords.long,
+        //destinations: this.state.tripdetails.CustomerCords.latitude + ","+ this.state.tripdetails.CustomerCords.longitude,
+        travelMode:"bicycling",
+        key:"AIzaSyAMMYiE-JJBJGtUNxzSXtcQPCcLp-cDgKE"
+      })
+      .finish((error, data)=>{
+        try {
+          var distanceMatrix = data.body.rows[0].elements[0];
+          this.setState({
+            pickUpdistance: distanceMatrix.distance.text,
+            pickUpduration : distanceMatrix.duration.text
+          });
+          console.log('results', data);
+          console.log('the distance in m', this.state.pickUpdistance);
+          console.log('the duration in minutes', this.state.pickUpduration);
+          console.log('the object returned',data);
+        } catch (e) {
+          console.error(e);
+          return null;
+        }
+      });    
+}
+
+//function to get the duration & distance of dropoff
+getDurationDistanceOfDropoff(){
+ return request.get("https://maps.googleapis.com/maps/api/distancematrix/json")  
+     .query({
+        //origin: this.state.origin.latitude + "," + this.state.origin.longitude,
+        //destination: this.state.destination.latitude + "," + this.state.destination.longitude,
+        origins: this.state.region.latitude + "," + this.state.region.longitude,
+        destinations: this.state.tripdetails.DropoffCords.lat + ","+ this.state.tripdetails.DropoffCords.long,
         travelMode:"bicycling",
         key:"AIzaSyAMMYiE-JJBJGtUNxzSXtcQPCcLp-cDgKE"
       })
@@ -182,6 +215,7 @@ getDuration(){
         }
       });    
 }
+
 
 
 //function to accept triprequest
@@ -227,6 +261,11 @@ onPressOffline(){
     });
   }
 
+//function to save ratings in the database
+// getFeedbacks(){
+//    db.Feedback
+
+// }
 
 
 render() {
@@ -237,16 +276,21 @@ if(this.state.showDconfirm == true){
     onPressConfirm={()=> this.respondtoRequest()} /> 
 );}
 
-else if(this.state.showDconfirm == false && this.state.showmap == true){
+else if(this.state.showmap == true){
   return (
     <DriverEnroute  d_coords={this.state.region}  d_markP={this.state.markerPosition}  c_coords={this.state.tripdetails.CustomerCords}
-    duration={this.state.duration} distance={this.state.distance}
+    customerName={this.state.tripdetails.customerName} customerPhone={this.state.tripdetails.customerPhone}
+    pickUpduration={this.state.pickUpduration} pickUpdistance={this.state.pickUpdistance} 
+    //onPressStart={()=> this.setState({})}
+    onPressComplete={()=> this.setState({showmap:false, Tripcompleted:true})}
     />
     );}
 
 else if(this.state.Tripcompleted){
   return(
-  <RateComplaint starCount={this.state.starCount}  onStarRatingPress={this.onStarRatingPress.bind(this)}  onChangeText={(text) => this.setState({feedbackText: text})}/>
+  <RateComplaint starCount={this.state.starCount}  onStarRatingPress={this.onStarRatingPress.bind(this)}  onChangeText={(text) => this.setState({feedbackText: text})}
+    
+  />
   );}
 
 else
@@ -262,3 +306,6 @@ return(
     });
 
 module.exports = DriverHome;
+
+
+//this.state.showDconfirm == false && 

@@ -49,13 +49,13 @@ const TrackDriver=(props)=>(
 
 <View style={styles.footerContainer}>
       <View style={{flexDirection:'row', marginTop:10}}>
-      <Text style={{fontSize:16, color:'black', marginLeft:10}} >Driver is 2.3 km away</Text>
-      <Text style={{fontSize:16, color:'red', marginLeft:190}}>1.0 min</Text>
+      <Text style={{fontSize:16, color:'black', marginLeft:10}} >Driver is {props.pickUpdistance} away</Text>
+      <Text style={{fontSize:16, color:'red', marginLeft:190}}>{props.pickUpduration}</Text>
       </View>
       <View style={styles.DriverInfo}>
         <Icon name="user" size={30} style={{marginLeft:20, marginTop:20}}/>
         <View style={{flexDirection:'column'}}>
-        <Text style={{marginLeft:40, fontSize:16, color:'#212121', marginTop:10}}> Mamadou </Text>
+        <Text style={{marginLeft:40, fontSize:16, color:'#212121', marginTop:10}}>{props.driverName}</Text>
        <View style={{marginLeft:40, marginTop:10, width:50}}>
         <StarRating 
           disabled={true}
@@ -67,7 +67,7 @@ const TrackDriver=(props)=>(
         </View>
         <View style={{flexDirection:'row', marginLeft:225, marginTop:8}}>
         <Icon name="phone" size={20} />
-        <Text style={{fontSize:15, color:'#212121', paddingLeft:10}}>01545584775</Text>     
+        <Text style={{fontSize:15, color:'#212121', paddingLeft:10}}>{props.driverPhone}</Text>     
         </View>
         </View>
       </View>
@@ -103,8 +103,6 @@ height:height*0.15
 });
 
 module.exports= TrackDriver;
-
-
 
 
 
