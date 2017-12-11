@@ -14,10 +14,11 @@ import request from '../CustomerComponents/request'
 import { GiftedForm, GiftedFormManager } from 'react-native-gifted-form'
 
 
-export default class loginScreen extends React.Component{
+export default class SignupForm extends React.Component{
+
 
  static navigationOptions = {
-    title:'Login',
+    title:'SignupForm',
   };
 
   constructor(props, context) {
@@ -26,7 +27,7 @@ export default class loginScreen extends React.Component{
   }
 
   handleValueChange(values) {
-   // console.log('handleValueChange', values)
+   //console.log('handleValueChange', values)
     this.setState({ form: values })
   }
 
@@ -35,13 +36,12 @@ render() {
   const {navigate} = this.props.navigation;
     return (     
 <GiftedForm
-        formName='login' // GiftedForm instances that use the same name will also share the same states
+        formName='signupForm' // GiftedForm instances that use the same name will also share the same states
         openModal={(route) => {
           navigator.push(route); // The ModalWidget will be opened using this method. Tested with ExNavigator
         }}
 
         onValueChange={this.handleValueChange.bind(this)}
-
         clearOnClose={false} // delete the values of the form when unmounted
         defaults={{
           /*
@@ -53,8 +53,16 @@ render() {
           */
         }}
         validators={{
+          fullName: {
+            title: 'Full name',
+            validate: [{
+              validator: 'isLength',
+              arguments: [4, 23],
+              message: '{TITLE} must be between {ARGS[0]} and {ARGS[1]} characters'
+            }]
+          },
           userName: {
-            title: 'Username',
+            title: 'UserName',
             validate: [{
               validator: 'isLength',
               arguments: [3, 16],
@@ -72,10 +80,37 @@ render() {
               arguments: [6, 16],
               message: '{TITLE} must be between {ARGS[0]} and {ARGS[1]} characters'
             }]
+          },
+          emailAddress: {
+            title: 'Email address',
+            validate: [{
+              validator: 'isLength',
+              arguments: [6, 255],
+            },{
+              validator: 'isEmail',
+            }]
+          },
+          phoneNumber:{
+            title: 'Phone Number',
+            validate:[{
+              validator:'isLength',
+              arguments:[11, 15]   
+            },{
+              validator:'isNumeric',
+              message: '{TITLE} must be between {ARGS[0]} and {ARGS[1]} characters'
+            }]
           } 
         }}
       >
         <GiftedForm.SeparatorWidget />
+
+        <GiftedForm.TextInputWidget
+          name='fullName' // mandatory
+          title='Full name'
+          image={require('../icons/color/user.png')}
+          placeholder='Barry Mamadou'
+          clearButtonMode='while-editing'
+        />
 
         <GiftedForm.TextInputWidget
           name='userName'
@@ -101,17 +136,35 @@ render() {
           clearButtonMode='while-editing'
           secureTextEntry={true}
           image={require('../icons/color/lock.png')}
-        />         
+        />
+
+        <GiftedForm.TextInputWidget
+          name='emailAddress' // mandatory
+          title='Email address'
+          placeholder='example@yahoo.com'
+          keyboardType='email-address'
+          clearButtonMode='while-editing'
+          image={require('../icons/color/email.png')}
+        />
+         
+        <GiftedForm.TextInputWidget
+          name='phoneNumber' // mandatory
+          title='H/P'
+          placeholder='01122843274'
+          keyboardType='numeric'
+          clearButtonMode='while-editing'
+          image={require('../icons/color/contact_card.png')}
+        />
 
         <GiftedForm.SwitchWidget
           name='isDriver'
-          title='Login as Driver'
+          title='SignUp as Driver'
         />
 
         <GiftedForm.ErrorsWidget/>
 
         <GiftedForm.SubmitWidget
-          title='login'
+          title='Sign up'
           widgetStyles={{
             submitButton: {
               backgroundColor: 'green',
@@ -120,46 +173,42 @@ render() {
 
           onSubmit={(isValid, values, validationResults, postSubmit = null, modalNavigator = null ) => {
             if (isValid === true) {
-
-             request.post("http://172.20.10.2:3000/api/login")
+            console.log(values);
+        request.post("http://172.20.10.2:3000/api/users")
                    .send(values)
                    .finish((error, res)=>{
-                    if(error){
+                     if(error){
                       postSubmit(['server is offline, please try again']);
-                    }
+                     }
                     else{
-                        if(res.body.loggedIn && res.body.error == null){
-
-                          AsyncStorage.setItem('user', JSON.stringify(res.body.data), (error)=> {
-                                  if(error){
-                                    //console.log('data failed', error);
-                                  }
-                                  else{
-                                    //console.log('data saved');
-                                  }
-                                });
-                          if(res.body.data.isDriver){
-                              //console.log('driver page is di..', res.body.data.isDriver);
-                              navigate('DriverHome');
-                             }
-                          else{
-                            //console.log('customer page is di...', res.body.data.isDriver);
-                            navigate('CustomerHome');
-                            }
-                            postSubmit();
+                          if(res.body.error){
+                            postSubmit(res.body.error);
+                          }
+                          else if(res.body.dbError){
+                            postSubmit(res.body.dbError);
                           }
                           else{
-                               //console.log(res);
-                              postSubmit(res.body.error);
-                            }
-
+                              AsyncStorage.removeItem('user', (error)=>{
+                              if(error){
+                                console.log('fail to remove', error);
+                                }
+                              else{
+                                console.log('data removed');
+                                  }
+                              });
+                              GiftedFormManager.reset('signupForm');
+                              navigate('Login');
+                          }
                       }
-
-                  });               
-              
+                   });    
             }
           }}
-        />  
+        />
+
+        <GiftedForm.NoticeWidget
+          title='By signing up, you agree to the Terms of Service and Privacy Policity.'
+        />
+      
       </GiftedForm>
     );
   }

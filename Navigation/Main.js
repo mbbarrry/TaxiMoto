@@ -10,7 +10,7 @@ import {
 
 class Main extends React.Component {
   static navigationOptions = {
-    header: null,
+    header:null,
   };
   render() {
     const {navigate} = this.props.navigation;
@@ -22,12 +22,12 @@ class Main extends React.Component {
 
                     <View style={styles.buttonContainer}>
 
-                        <TouchableOpacity onPress={() => navigate('RegistrationScreen')} style={styles.buttonStyle1}>
+                        <TouchableOpacity onPress={() => navigate('Signup')} style={styles.buttonStyle1}>
                             <Text style={styles.buttonText1}>CREATE  ACCOUNT</Text>
                         </TouchableOpacity>
                         <Text style={styles.intructText}> Already a user ? </Text>
 
-                        <TouchableOpacity onPress={() => navigate('LoginScreen')} style={styles.buttonStyle2}>
+                        <TouchableOpacity onPress={() => navigate('Login')} style={styles.buttonStyle2}>
                             <Text style={styles.buttonText2}>LOG IN</Text>
                         </TouchableOpacity>
                     </View>
@@ -117,3 +117,11 @@ const styles = StyleSheet.create({
 
 
 export default Main
+
+
+
+
+
+
+
+

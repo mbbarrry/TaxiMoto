@@ -1,8 +1,8 @@
 package com.taximoto;
 
 import android.app.Application;
-import com.devfd.RNGeocoder.RNGeocoderPackage;
 import com.facebook.react.ReactApplication;
+import com.react.rnspinkit.RNSpinkitPackage;
 import com.arttitude360.reactnative.rngoogleplaces.RNGooglePlacesPackage;
 import com.airbnb.android.react.maps.MapsPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
@@ -26,10 +26,10 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNSpinkitPackage(),
             new RNGooglePlacesPackage(),
             new MapsPackage(),
-            new VectorIconsPackage(),
-            new RNGeocoderPackage()
+            new VectorIconsPackage()
       );
     }
   };

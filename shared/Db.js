@@ -5,8 +5,8 @@ export default class Db {
         return Config.firebase.database().ref(dbPath).set(data);
 	}
 
-	static getUserPath(userId) {
-		return "/user/" + userId;
-	}
+	// static getUserPath(userId) {
+	// 	return "/user/" + userId;
+	// }
 }
 

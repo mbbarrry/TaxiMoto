@@ -1,20 +1,31 @@
 import React from 'react';
-import {StyleSheet, Alert } from "react-native";
-import {View, List, ListItem, Left, Dimensions, Body, Text } from "native-base";
-import {Icon} from "native-base";
+import {
+  AppRegistry,
+  Text,
+  StyleSheet,
+  View,
+  Alert,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  TextInput,
+  Dimensions,
+  TouchableWithoutFeedback,
+  ToastAndroid 
+} from 'react-native';
 
-export default class SearchResults extends React.Component {
+import {List, ListItem, Left, Body, Header, Title, Button, Right} from "native-base";
+import Icon from "react-native-vector-icons/MaterialIcons";
+const {width, height}= Dimensions.get('window'); 
 
-  render() {
-      return(
-        <View style={styles.searchResultsWrapper} >
+const Autoplacesuggetion=(props)=>(
+<View style={styles.searchResultsWrapper} >
           <List 
-            dataArray={this.props.predictions}
+            dataArray={props.predictions}
             renderRow={(item)=>
               <View>
-                <ListItem  button avatar>
+                <ListItem onPress={ () => { props.handleSelectedItem(item) } } button avatar>
                   <Left style={styles.leftContainer}>
-                    <Icon style={styles.leftIcon} name="location-on" />
+                      <Icon style={styles.leftIcon} name="location-on" />
                   </Left>
                   <Body>
                     <Text style={styles.primaryText}>{item.primaryText}</Text>
@@ -22,21 +33,17 @@ export default class SearchResults extends React.Component {
                   </Body>
                 </ListItem>
               </View>
-            }
-          />
+              }
+            />
         </View>
-
-      );
-  };
-}
-
+)
 
 const styles= StyleSheet.create({
     searchResultsWrapper:{
-        top:200,
+        top:170,
         position:"absolute",
-        width:500,
-        height:450,
+        width:width,
+        height:1000,
         backgroundColor:"#fff",
         opacity:0.9
     },
@@ -61,3 +68,6 @@ const styles= StyleSheet.create({
         fontSize:12,
     }
 });
+
+
+module.exports= Autoplacesuggetion;
