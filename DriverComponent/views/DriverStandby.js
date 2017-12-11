@@ -8,7 +8,7 @@ const {width, height}= Dimensions.get('window');
 
 
 
-// functional component & pure
+
 const DriverStandby = (props) => (
 <Drawer  
 ref={(ref) => { this.drawer = ref;}}
