@@ -23,13 +23,13 @@ onClose={()=> this.closeDrawer()}
         <Text style={styles.text2}>Stay online to receive incoming trip request</Text>
  </View>
     <View style={styles.btnContainer}>
-      <Button  style={styles.buttonStyle}  onPress={props.onlineBtn}
+      <Button  style={styles.buttonStyle1}  onPress={props.onlineBtn}
       >
-      <Text style={styles.buttonText}>online</Text>
+      <Text style={styles.buttonText1}>online</Text>
       </Button>
 
-      <Button  style={styles.buttonStyle}  onPress={props.offlineBtn}>
-      <Text style={styles.buttonText}>offline</Text>
+      <Button  style={styles.buttonStyle2}  onPress={props.offlineBtn}>
+      <Text style={styles.buttonText2}>offline</Text>
       </Button>
 
     </View>
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     top:440,
     marginLeft:120,
   },
- buttonStyle: {
+ buttonStyle1: {
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 10,
@@ -98,14 +98,31 @@ const styles = StyleSheet.create({
         width: width*0.19,
         marginLeft: 5,
 },
-
-buttonText: {
+ buttonStyle2: {
+        justifyContent: 'center',
         alignItems: 'center',
-        fontSize: 15,
+        borderRadius: 10,
+        backgroundColor: 'rgb(236, 240, 241)',
+        height: height*0.056,
+        width: width*0.19,
+        marginLeft: 5,
+},
+buttonText1: {
+        alignItems: 'center',
+        fontSize: 17,
         color: 'rgb(236, 240, 241)',
         margin: 10,
         fontWeight: 'bold'
-    }
+    },
+
+buttonText2: {
+        alignItems: 'center',
+        fontSize: 17,
+        color: 'rgb(0,0,0)',
+        margin: 10,
+        fontWeight: 'bold'
+    },
+
 
 });
 
