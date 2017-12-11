@@ -1,14 +1,15 @@
+
 import React from 'react';
 import {
   AppRegistry,
   Text,
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-//import MapContainer from '../CustomerComponents/MapContainer'
-import CustomerHome from '../CustomerComponents/CustomerHome'
 import Main from './Main'
+import login from '../components/loginScreen'
+import SignupForm from '../components/SignupForm'
 import DriverHome from '../DriverComponent/DriverHome'
-
+import CustomerHome from '../CustomerComponents/CustomerHome'
 
 const mapNavigationStateParamsToProps = (SomeComponent) => {
     return class extends React.Component {
@@ -21,10 +22,12 @@ const mapNavigationStateParamsToProps = (SomeComponent) => {
 }
 
 const SimpleApp = StackNavigator({
-  Home: { screen: mapNavigationStateParamsToProps(Main) },
-  //CustomerHomeScreen: {screen: mapNavigationStateParamsToProps(MapContainer)},
-  CustomerHomeScreen: {screen: mapNavigationStateParamsToProps(CustomerHome)},
-  DriverScreen: {screen: mapNavigationStateParamsToProps(DriverHome)}
+  
+  Main: { screen: mapNavigationStateParamsToProps(Main)},
+  Signup: { screen: mapNavigationStateParamsToProps(SignupForm)},
+  Login: { screen: mapNavigationStateParamsToProps(login) },
+  CustomerHome: {screen: mapNavigationStateParamsToProps(CustomerHome)},
+  DriverHome: {screen: mapNavigationStateParamsToProps(DriverHome)}
 },
 
 {
@@ -33,3 +36,18 @@ headerMode: 'screen'
 );
 
 export default SimpleApp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

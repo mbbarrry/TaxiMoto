@@ -3,16 +3,16 @@ import PropTypes from 'prop-types';
 import {StyleSheet, View, Text, Dimensions} from 'react-native';
 import { Container, Drawer, Header, Content, Form, Item, Input,Icon, Button } from 'native-base';
 import AppHeader from '../appHeader'
-import Sidebar from '../sideBar'
+import Sidebar from '../drawer/sideBar'
 const {width, height}= Dimensions.get('window'); 
 
 
 
 // functional component & pure
 const DriverStandby = (props) => (
-  <Drawer  
+<Drawer  
 ref={(ref) => { this.drawer = ref;}}
-content={<Sidebar/>}
+content={<Sidebar name={props.name} />}
 onClose={()=> this.closeDrawer()} 
 >
 
@@ -47,15 +47,6 @@ closeDrawer = () =>{
     this.drawer._root.open()
   };
 
-
-
-
-
-// DriverStandbyView.PropTypes = {
-//   drawer: function,
-//   infoText: string,
-//   openDrawer: function,
-//  }
 
 const styles = StyleSheet.create({
   container:{

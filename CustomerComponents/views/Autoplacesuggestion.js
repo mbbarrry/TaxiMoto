@@ -40,7 +40,7 @@ const Autoplacesuggetion=(props)=>(
 
 const styles= StyleSheet.create({
     searchResultsWrapper:{
-        top:230,
+        top:170,
         position:"absolute",
         width:width,
         height:1000,

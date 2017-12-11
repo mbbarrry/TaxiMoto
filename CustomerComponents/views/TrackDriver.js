@@ -24,7 +24,7 @@ const TrackDriver=(props)=>(
 <View style={styles.container}>
    <MapView
         style={styles.map}
-        region={props.c_coords}
+        region={props.customerlocation}
         provider="google"
         showsUserLocation={true}
         showsMyLocationButton={true}
@@ -33,24 +33,39 @@ const TrackDriver=(props)=>(
         loadingEnabled={true}
         toolbarEnabled={true}
         zoomEnabled={true}
-        rotateEnabled={true}
+        rotateEnabled={true}  
       >
-        <MapView.Marker
-          coordinate={props.c_markP}
-          pinColor="green"
-        />  
 
+      <MapView.Marker
+        coordinate={props.customermarker}
+        pinColor='green'
+      />      
+
+      <MapView.Marker
+         coordinate={props.driverLocation}
+        image={require('../../icons/color/scooter.png')}
+         />
+                
+
+      
         <MapView.Marker
-          coordinate={props.c_coords}
-          pinColor="red"
+          coordinate={props.destinationCoordinates}
+          pinColor='blue'
+
         />
+        
+
 
       </MapView>     
+
+{
+
+  props.pickup !== false ?
 
 <View style={styles.footerContainer}>
       <View style={{flexDirection:'row', marginTop:10}}>
       <Text style={{fontSize:16, color:'black', marginLeft:10}} >Driver is {props.pickUpdistance} away</Text>
-      <Text style={{fontSize:16, color:'red', marginLeft:190}}>{props.pickUpduration}</Text>
+      <Text style={{fontSize:16, color:'red', marginLeft:180}}>{props.pickUpduration}</Text>
       </View>
       <View style={styles.DriverInfo}>
         <Icon name="user" size={30} style={{marginLeft:20, marginTop:20}}/>
@@ -73,6 +88,38 @@ const TrackDriver=(props)=>(
       </View>
      </View> 
 
+ :
+
+
+<View style={styles.footerContainer}>
+      <View style={{flexDirection:'row', marginTop:10}}>
+      <Text style={{fontSize:16, color:'black', marginLeft:10}} >Distance {props.dropoffdistance}</Text>
+      <Text style={{fontSize:16, color:'red', marginLeft:175}}>Time {props.dropoffduration}</Text>
+      </View>
+      <View style={styles.DriverInfo}>
+        <Icon name="user" size={30} style={{marginLeft:20, marginTop:20}}/>
+        <View style={{flexDirection:'column'}}>
+        <Text style={{marginLeft:40, fontSize:16, color:'#212121', marginTop:10}}>{props.driverName}</Text>
+       <View style={{marginLeft:40, marginTop:10, width:50}}>
+        <StarRating 
+          disabled={true}
+          maxStars={5}
+          rating={2.5}
+          starColor='green'
+          starSize={20}
+        />
+        </View>
+        <View style={{flexDirection:'row', marginLeft:225, marginTop:8}}>
+        <Icon name="phone" size={20} />
+        <Text style={{fontSize:15, color:'#212121', paddingLeft:10}}>{props.driverPhone}</Text>     
+        </View>
+        </View>
+      </View>
+     </View> 
+
+
+}
+
 </View>    
 
 )
@@ -85,7 +132,7 @@ map:{
   ...StyleSheet.absoluteFillObject
 },
 footerContainer:{
-  top:450,
+  top:490,
     width:width,
     backgroundColor: 'white',
     height:height*0.25,
@@ -106,13 +153,25 @@ module.exports= TrackDriver;
 
 
 
-// <Button style={{alignItems:'center', justifyContent:'center', marginLeft:17, marginTop:20, backgroundColor:'rgb(39, 174, 96)', borderRadius:5, width:width*0.9}}>
-//       <Text style={{color:'rgb(236, 240, 241)', fontSize:20, fontWeight:'bold'}}>START TRIP</Text>
-//       </Button> 
-
-//<Text style={{marginLeft:20, marginTop:5, fontSize:15, fontWeight:'bold', color:'rgb(39, 174, 96)'}}> PICK UP </Text>
-//<Text style={{marginLeft:150, marginTop:20, fontSize:15}}>{props.duration}</Text>     
 
 
 
- 
+// {
+//           props.driverLocation && 
+//         <MapView.Marker
+//           coordinate={props.driverLocation}
+//           image={require('../../icons/color/scooter.png')}
+//         />
+//         }
+
+
+
+// <MapView.Marker
+//           coordinate={props.customermarker}
+//           pinColor='green'
+
+//         />
+
+
+
+//ref={(ref) => { this.mapRef = ref }}

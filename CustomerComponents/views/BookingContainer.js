@@ -30,7 +30,7 @@ const BookingContainer=(props)=>(
         selectedValue={props.selectedValue}
         onValueChange={props.onValueChange}>
     <Item label="Cash" value="key1" />
-    <Item label="Debit Card" value="key2" />
+    <Item label="Debit Card" value="creditCard" />
    </Picker>
     
 </View>

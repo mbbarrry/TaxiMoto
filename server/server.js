@@ -3,60 +3,63 @@ var server = require('http').Server(app);
 var port = process.env.PORT || 3000;
 var io = require('socket.io').listen(server, {pingTimeout: 30000});
 var bodyParser = require("body-parser");
-var BroadCastRequest= require("./BroadCastRequest");
+var feedbacks = require('./routes/feedbacks');
+var users = require('./routes/users');
+var trips = require('./routes/trips');
 
-var trip_info = [];
-var driver_info= [];
 
 console.log("server running on", port);
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
+//Body parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
-app.use('/api', BroadCastRequest);
 
+//Routes
+app.use('/api', feedbacks);
+app.use('/api', users);
+app.use('/api', trips);
 
-
+//socket.io connection
 io.on('connection', function (socket) {
-	console.log('user connected', socket.id);
-    socket.on('disconnect', function(){
-      console.log('user disconnected');
- });
+      	console.log('user connected', socket.id);
+        socket.on('disconnect', function(){
+        console.log('user disconnected');
+       });
 
-// receive and emitting trip request
-socket.on('request', (data)=>{
-    	console.log('from client',data);
-       trip_info.push(data);
-       console.log('the array', trip_info);
- io.emit('triprequest',{data});
-    	console.log('sever emitiing:',data);
-    });
+      // receive and emitting trip request
+      socket.on('request', (data)=>{
+          	console.log('from client');
+            io.emit('triprequest',{data});
+          	console.log('sever emitiing request');
+      });
 
-//receiving and emitting trip request response from driver to custmer
-socket.on('response', (data)=>{
-	driver_info.push(data);
-    var datafiltered = driver_info.filter((item)=>{
-     return item.CustomerName == data.CustomerName;
-   });
-	
-	io.emit('request accepted', data);
-    console.log('server emitiing the accepted r', datafiltered);
-});
+      //receiving and emitting trip request response from driver to custmer
+      socket.on('response', (data)=>{
+      	  io.emit('request accepted', data);
+          console.log('server emitiing the response along with driver data', data);
+      });
 
-socket.on('customer:connected', (data) => {
-	var datafiltered = trip_info.filter((item)=>{
-     return item.userName == data.userName;
-   });
-	if (datafiltered[0]) {
-		socket.emit('trip-info', datafiltered[0]);
-		console.log('customer connected on props',datafiltered);
-	} else {
-		console.log('no trip info found');
-	}
-})
+      //emit trip completed to customer
+      socket.on('tripcompleted', (data)=>{
+          io.emit('givefeeback', data);
+          console.log(' prompting customer to feedbacks...');
+      });
+
+      //emit to cancel trip request
+      socket.on('cancel', ()=>{
+          io.emit('tripcanceled');
+          console.log('trip canceled emitiing');
+      });
+
+
+      socket.on('driverIshere', (data)=>{
+          io.emit('driverArrived at pic', data);
+          console.log('driverArrived', data);
+      });
 
 });
 

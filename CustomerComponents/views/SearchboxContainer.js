@@ -80,7 +80,7 @@ const SearchboxContainer=(props)=>(
 
 const styles= StyleSheet.create({
   SearchBox:{
-    top:70,
+    top:10,
     position:"absolute",
     width:width*0.9,
     //height:height*0.1,

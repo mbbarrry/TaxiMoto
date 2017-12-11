@@ -3,19 +3,20 @@ import {
   View,
   StyleSheet,
   Alert,
-  Dimensions
+  Dimensions,
+  AsyncStorage,
+  NetInfo 
 }
 from "react-native";
 import StarRating from 'react-native-star-rating';
 import ws from '../server/serverConfig'
 import { Container, Drawer, Header, Content, Toast, Button, Text, Icon , Left, Right, Picker} from 'native-base';
 import AppHeader from './appHeader'
-import Sidebar from './sideBar'
+import Sidebar from '../CustomerComponents/drawer/sideBar'
 import Permissions from 'react-native-permissions'
 import RNGooglePlaces from 'react-native-google-places'
 import request from './request'
 import calculateFare from './fareCalculator'
-
 import MapContainer from './views/MapContainer'
 import SearchboxContainer from './views/SearchboxContainer'
 import Autoplacesuggestion from './views/Autoplacesuggestion'
@@ -34,7 +35,24 @@ const LATTITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATTITUDE_DELTA * ASPECT_RATIO;
 
 var watchID = null;
+var interval = null;
+let customerInfo={};
 
+
+ws.on("connect", ()=>{
+      console.log('customer connected to server');  
+});
+
+AsyncStorage.getItem('user', (error, data)=>{
+            if(error){
+              console.log('something went wrong', error);
+            }
+            else{
+                var data = JSON.parse(data);
+                customerInfo= data;
+                console.log('customerInfo',customerInfo);
+    }
+});
 
 
 
@@ -49,24 +67,19 @@ export default class CustomerHome extends React.Component{
   origin = null;
   destination = null;
 
- initialState = {
-
-    userName:'Barry',
-    phone:'0112383883',
-    predictions:[],
-    
+ initialState = { 
     region:{
       latitude:3.253502,
       longitude:101.653326,
       latitudeDelta: 0.0022,
       longitudeDelta: 0.0422,
     },
-
     markerPosition:{
       latitude:3.253502,
       longitude:101.653326,
     },
     origin:{} ,
+    predictions:[],
     destination:{},
     distance:{},
     duration:{},
@@ -78,16 +91,16 @@ export default class CustomerHome extends React.Component{
     },
 
     destinationcords:{
-    lat:null,
-    long:null,
+    latitude:null,
+    longitude:null,
     },
     
     totalfare:[],
     showToast: false,
     displayReq:false,
-    markerids:['marker1', 'marker2'],
+    markerids:['marker1', 'marker2', 'marker2'],
     status:null,
-    selected: "key1",
+    selected: "cash",
     starCount: 0,
     feedbackText:'',
     findDriver:false,
@@ -96,48 +109,69 @@ export default class CustomerHome extends React.Component{
     Tripcompleted:false,
     driverDetails:{},
     pickUpduration:'',
-    pickUpdistance:''
+    pickUpdistance:'',
+    dropoffdistance:'',
+    dropoffduration:'',
+    trackdriver:{},
+    pickup: true
 };
 
 constructor (props){
- // console.log('constructor');
   super(props);
-
+//console.log(props);
   this.state = this.initialState
-  // ws.emit('customer:connected', {
-  //     "userName": "barry",
-  // });
-  
-  
-    this.mapRef = null;
-   
+       
    // once everything done, reset state
    // this.setState(this.initialState)
     
 }
 
 componentDidMount(){
-   //  Permissions.check('location', 'whenInUse')
-     //  .then(response => {
-      //   this.setState({ locationPermission: response })
-     //  });
+    Permissions.check('location', 'whenInUse')
+      .then(response => {
+        this.setState({ locationPermission: response })
+      });
    
-
-    // Permissions.request('location', 'whenInUse')
-     //  .then(response => {
-     //    this.setState({ locationPermission: response })
-     //  });
+    Permissions.request('location', 'whenInUse')
+      .then(response => {
+        this.setState({ locationPermission: response })
+      });
      
-     // Alert.alert(
-    //  'Your location is turned off?',
-    //  'Please turn your location on',
-    //  [
-      //  {text: 'No', onPress: () => console.log('permission denied'), style: 'cancel'},
-      //  this.state.photoPermission == 'undetermined'?
-        //  {text: 'OK', onPress: this._requestPermission.bind(this)}
-        //  : {text: 'Open Settings', onPress: Permissions.openSettings}
-     // ]
-   // )
+     Alert.alert(
+     'Turn your location on?',
+     'Please turn your location on'
+   )
+
+
+
+NetInfo.isConnected.fetch().then(isConnected => {
+
+    if(isConnected === 'offline'){
+      Alert.alert(
+          "Your mobile isn't connected to interenet",
+          'turn on your interenet'
+        )
+    }
+
+  else{       
+  //console.log('First, is ' + (isConnected ? 'online' : 'offline'));
+    }
+
+});
+
+
+NetInfo.addEventListener('connectionChange', (isConnected)=>{
+    if(isConnected === 'offline'){
+      Alert.alert(
+          "Your mobile isn't connected to interenet",
+          'turn on your interenet'
+        )
+    }
+    else{
+  console.log('Then, is ' + (isConnected ? 'online' : 'offline')); 
+       }
+});
+
 
     navigator.geolocation.getCurrentPosition((position) => {
       
@@ -172,15 +206,17 @@ componentDidMount(){
        });
 }
 
+
 componentWillUnmount(){
   //console.log('componentWillUnmount');
   navigator.geolocation.clearWatch(this.watchId);
-
  // prevState = this.state;
 }
+
+
 //function to get the google places predictions
 displayPredictions(text, type){
-  RNGooglePlaces.getAutocompletePredictions(text)
+  RNGooglePlaces.getAutocompletePredictions(text, {country: "MY"})
     .then((results) => {
       this.setState({ 
         predictions: results, 
@@ -193,31 +229,29 @@ displayPredictions(text, type){
 }
 
 //function to get the selected item from google places prediction
-
 selectedAddress(selectedItem){
-  const predictionType = this.state.predictionsType;
+    const predictionType = this.state.predictionsType;
+    if (predictionType == 'pick-up') {
+        this.origin = selectedItem; 
+      }
 
-if (predictionType == 'pick-up') {
-    this.origin = selectedItem; 
-  }
-
-  if (predictionType == 'drop-off') {
-    this.destination = selectedItem; 
-  }
+      if (predictionType == 'drop-off') {
+        this.destination = selectedItem; 
+      }
 
 
-  if (this.destination !== null && this.origin !== null) {
-     this.getDistanceMatrix(this.origin, this.destination);
-     this.gethedestinationLatLong(selectedItem);
-  }
+      if (this.destination !== null && this.origin !== null) {
+         this.getDistanceMatrix(this.origin, this.destination);
+         this.gethedestinationLatLong(selectedItem);
+      }
 
-  this.setState({
-    predictions: [],
-    origin:this.origin,
-    destination:this.destination,
-  });
- // console.log('origin and dest',selectedItem);
-  //console.log('des...', this.destination);
+      this.setState({
+        predictions: [],
+        origin:this.origin,
+        destination:this.destination,
+      });
+     // console.log('origin and dest',selectedItem);
+    //console.log('des...', this.destination);
 }
 
 //function to get the distance using google distancematrix
@@ -240,8 +274,8 @@ getDistanceMatrix(origin, destination){
             duration : distanceMatrix.duration.value
           });
           //console.log('the distance', this.state.distance);
-          console.log('the duration', this.state.duration);
-          console.log('the object returned',data);
+          //console.log('the duration', this.state.duration);
+         // console.log('the object returned',data);
           this.gettheFare(this.state.distance, this.state.duration );
         } catch (e) {
           console.error(e);
@@ -252,144 +286,160 @@ getDistanceMatrix(origin, destination){
 
 //function to calculate the fare  
 gettheFare(distance, duration){
-    if (distance !==null) {
-       const fare= calculateFare(
-            this.state.dummyNumbers.baseFare,
-            this.state.dummyNumbers.timeRate,
-            duration,
-            this.state.dummyNumbers.distanceRate,
-            distance,
-            this.state.dummyNumbers.surge,
-          );
-       this.setState({
-            totalfare: [fare]
-         });
-     //  console.log('my fare', this.state.totalfare[0]);
-    }
+      if (distance !==null) {
+         const fare= calculateFare(
+              this.state.dummyNumbers.baseFare,
+              this.state.dummyNumbers.timeRate,
+              duration,
+              this.state.dummyNumbers.distanceRate,
+              distance,
+              this.state.dummyNumbers.surge,
+            );
+         this.setState({
+              totalfare: [fare]
+           });
+       //  console.log('my fare', this.state.totalfare[0]);
+      }
 }
 
 //function to get the latlong of the destination
 gethedestinationLatLong(destlatlong){
-//console.log('id', destlatlong);
-RNGooglePlaces.lookUpPlaceByID(destlatlong.placeID)
-.then((results) =>{
-        try {
-          var coordinate = results;
-          this.setState({
-            destinationcords:{
-            lat: coordinate.latitude,
-            long : coordinate.longitude
-          }
-          });
-        //  console.log("any", coordinate);
-          //console.log('the lat', this.state.destinationcords.lat);
-          //console.log('long', this.state.destinationcords.long);
-        
-        } catch (e) {
-          console.error(e);
-          return null;
-        }
+      //console.log('id', destlatlong);
+      RNGooglePlaces.lookUpPlaceByID(destlatlong.placeID)
+      .then((results) =>{
+              try {
+                //var coordinate = results
+                this.setState({
+                  destinationcords:{
+                  latitude: results.latitude,
+                  longitude: results.longitude
+                }
+                });
+              //  console.log("any", coordinate);
+                //console.log('the cord i want ', results)
+                //console.log('the lat', this.state.destinationcords.latitude);
+                //console.log('long', this.state.destinationcords.longitude);
+                //console.log('the destination coords', this.state.destinationcords);
+              } catch (e) {
+                console.error(e);
+                return null;
+              }
       });    
 }
 
-//function to fit  the map the supplied markers 
-componentDidUpdate(){
- // console.log('componentDidUpdate');
-  if(this.mapRef !==null){
-  this.mapRef.fitToSuppliedMarkers(
-        this.state.markerids,
-        false, // not animateds
-      );
-}
-
-}
 
 
 componentWillMount(){
-// ws.on('trip-info',  (data)=> {
-//     console.log('stored data',data);
-//     this.setState({
-//        destination: data.dropOffAddress,
-//        origin:data.pickUpAddress,
-//        fare: data.fare,
-//        status:data.status
-//     });
+      ws.on('request accepted', (data)=>{
+          if(customerInfo._id === data.customerID){
+            if(data !== null){
+            this.setState({
+            driverDetails:data,
+            findDriver:false,
+            TrackDriver:true
+            });
+        // console.log('driver details from server', data);
+          //console.log('driver data', this.state.driverDetails);
+          this.getDistanceFromDriver();  
+        }
+      }  
+});
+
+
+// ws.on('trackdriver', (data)=>{
+//     console.log('driverLocation sent by server',data);
+//     this.setState({trackdriver: data});
+//     console.log('driver location', this.state.trackdriver);
 // });
 
-ws.on('request accepted', (data)=>{
-  if(data !== null){
-  this.setState({
-  driverDetails:data,
-  findDriver:false,
-  TrackDriver:true
-  });
-  // console.log('driver details from server', data);
-  console.log('driver data', this.state.driverDetails);
-  this.getDurationDistanceOfPickup();
-}
+    ws.on('givefeeback', (data)=>{
+          if(customerInfo._id === data.customerID){
+            Alert.alert(
+           'Reached destination',
+           "You're at your destionation don't forget to rate the trip, thank you for choosing to ride with us"  
+         )
+          clearInterval(this.interval);     
+          this.setState({
+          TrackDriver:false,
+          Tripcompleted: true});
+        }  
+    });
 
+
+ws.on('driverArrived at pic', (data)=>{
+      if(customerInfo._id === data.customerID){
+
+        Alert.alert(
+          "Driver is here",
+          'Prepare for your journey!'
+        )
+
+        this.getDistanceDurationOfDropoff();
+        this.setState({pickup:false});
+      }
 });
 
 }
+
+
 
 //function to send request to driver
 findDriver(){
-this.setState({
-  findDriver: true,
-  status: 'pending' 
-});
-ws.emit('request', {
-    "customerName": this.state.userName,
-    "customerPhone": this.state.phone,
-    "pickUpAddress": this.state.origin.primaryText,
-    "dropOffAddress": this.state.destination.primaryText,
-    "CustomerCords": this.state.region,
-    "DropoffCords":this.state.destinationcords,
-    "fare": this.state.totalfare[0],
-    "PaymentMethod":this.state.selected,
-    "status": 'pending'
-});
+      this.setState({
+        findDriver: true 
+      });
+      ws.emit('request', {
+          "customerID": customerInfo._id,
+          "customerName": customerInfo.fullName,
+          "customerPhone": customerInfo.phoneNumber,
+          "pickUpAddress": this.state.origin.primaryText,
+          "dropOffAddress": this.state.destination.primaryText,
+          "CustomerCords": this.state.region,
+          "DropoffCords":this.state.destinationcords,
+          "fare": this.state.totalfare[0],
+          "PaymentMethod":this.state.selected
+      });
 }
 
 // setTimeout(function(){
 // this.changestate();
 // },3000);
 
-
+//function to cancel request 
 onCancelfindDriver(){
-  this.setState({
-   findDriver:false
-  });
+      const data='customer canceled trip';
+      ws.emit('cancel');
+      this.setState(this.initialState);
 }
 
 
 //function to handle the selected
 onValueChange(value: string) {
-    this.setState({
-      selected: value
-    });
-  }
+        this.setState({
+          selected: value
+        });
+}
 
 //function to close drawer
 closeDrawer = () =>{
     this.drawer._root.close()
-  };
+};
 
 //function to open drawer
-  openDrawer = () => {
+openDrawer = () => {
     this.drawer._root.open()
-  };
+};
 
 //function to handle the ratings
- onStarRatingPress(rating) {
+onStarRatingPress(rating) {
     this.setState({
       starCount: rating
     });
-  }
+}
 
 
 //function to get the duration & distance of pickup
-getDurationDistanceOfPickup(){
+getDistanceFromDriver(){ 
  return request.get("https://maps.googleapis.com/maps/api/distancematrix/json")  
      .query({
         //origin: this.state.origin.latitude + "," + this.state.origin.longitude,
@@ -406,12 +456,12 @@ getDurationDistanceOfPickup(){
             pickUpdistance: distanceMatrix.distance.text,
             pickUpduration : distanceMatrix.duration.text
           });
-          console.log('results', data);
-          console.log('the distance in m', this.state.distance);
-          console.log('the duration in minutes', this.state.duration);
-          console.log('the object returned',data);
+          //console.log('results', data);
+          //console.log('the distance in m', this.state.distance);
+          //console.log('the duration in minutes', this.state.duration);
+          //console.log('the object returned',data);
         } catch (e) {
-          console.error(e);
+          //console.error(e);
           return null;
         }
       });    
@@ -419,75 +469,164 @@ getDurationDistanceOfPickup(){
 
 
 
+getDistanceDurationOfDropoff(){ 
+
+ this.interval = setInterval(()=>{
+  console.log('current dropoffdistance from driver');
+ return request.get("https://maps.googleapis.com/maps/api/distancematrix/json")  
+     .query({
+        //origin: this.state.origin.latitude + "," + this.state.origin.longitude,
+        //destination: this.state.destination.latitude + "," + this.state.destination.longitude,
+        origins: this.state.region.latitude + "," + this.state.region.longitude,
+        destinations: this.state.destinationcords.latitude + ","+ this.state.destinationcords.longitude,
+        travelMode:"bicycling",
+        key:"AIzaSyAMMYiE-JJBJGtUNxzSXtcQPCcLp-cDgKE"
+      })
+      .finish((error, data)=>{
+        try {
+          var distanceMatrix = data.body.rows[0].elements[0];
+          this.setState({
+            dropoffdistance: distanceMatrix.distance.text,
+            dropoffduration: distanceMatrix.duration.text
+          });
+          //console.log('results', data);
+          //console.log('the distance in m', this.state.distance);
+          //console.log('the duration in minutes', this.state.duration);
+          //console.log('the object returned',data);
+        } catch (e) {
+          //console.error(e);
+          return null;
+        }
+      }); 
+
+      }, 5000);   
+
+
+}
+
+
+
+//function to save feeds to database 
+saveFeedbacks(){
+        var data={
+          customerID: customerInfo._id,
+          customerName: customerInfo.fullName,
+          driverID: this.state.driverDetails.driverID, 
+          driverName:this.state.driverDetails.driverName,
+          originAddress: this.state.origin.primaryText,
+          destinationAddress:this.state.destination.primaryText,
+          rate:this.state.starCount,
+          message:this.state.feedbackText,
+          datetime: JSON.stringify(new Date())
+        }
+
+        request.post('http://172.20.10.2:3000/api/feedbacks')
+        .send(data)
+        .finish((error,res)=>{
+          if(error){
+            console.log(error);
+          }
+          else{
+            console.log(res);
+            }
+        });
+      this.setState(this.initialState);
+}
+
 
 
 render(){
  
-if(this.state.findDriver){
-return(
-  <BookingRequest  isVisible={this.state.isVisible} originName={ this.state.origin.primaryText } destinationName={ this.state.destination.primaryText} 
-    onPressAction={()=>{this.onCancelfindDriver()}}
-  />
-  );}
+      if(this.state.findDriver == true){
+      return(
+        <BookingRequest  
+          isVisible={this.state.isVisible} 
+          originName={ this.state.origin.primaryText } 
+          destinationName={ this.state.destination.primaryText} 
+          onPressAction={()=>{this.onCancelfindDriver()}}
+        />
+        );}
 
-else if(this.state.TrackDriver){
-    return(
-  <View style={{flex:1}}>
-   <AppHeader  openDrawer={this.openDrawer.bind(this)}/>        
-   <TrackDriver c_coords={this.state.region} c_markP={this.state.markerPosition} c_destcoords={this.state.destinationcords}
-    pickUpdistance={this.state.pickUpdistance} pickUpduration={this.state.pickUpduration} driverName={this.state.driverDetails.driverName}  
-    driverPhone={this.state.driverDetails.driverPhone}
-   />   
-  </View>
-);}
+      else if(this.state.TrackDriver == true){
+      return(
+        <View style={{flex:1}}>        
+         <TrackDriver 
+         customerlocation={this.state.region} 
+         customermarker={this.state.markerPosition} 
+         destinationCoordinates={this.state.destinationcords}
+         pickUpdistance={this.state.pickUpdistance} 
+         pickUpduration={this.state.pickUpduration} 
+         driverName={this.state.driverDetails.driverName}  
+         driverPhone={this.state.driverDetails.driverPhone}   
+         driverLocation={this.state.driverDetails.location}
+         markers={this.state.markerids}
+         pickup={this.state.pickup}
+         dropoffduration={this.state.dropoffduration}
+         dropoffdistance={this.state.dropoffdistance}
+         />   
+        </View>
+      );}
 
-else if(this.state.Tripcompleted){
-  return(
-    <RatingDriverContainer  starCount={this.state.starCount}  onStarRatingPress={this.onStarRatingPress.bind(this)}  onChangeText={(text) => this.setState({feedbackText: text})}/>
-);}
+      else if(this.state.Tripcompleted){
+        return(
+          <RatingDriverContainer  
+          starCount={this.state.starCount}  
+          onStarRatingPress={this.onStarRatingPress.bind(this)}  
+          onChangeText={(text) => this.setState({feedbackText: text})}
+          onSubmitFeedbacks={()=>{this.saveFeedbacks()}}
+          />
+      );}
 
- else{
-return(
-<View style={{flex:1, flexDirection:'column'}}>
-<AppHeader  openDrawer={this.openDrawer.bind(this)}/>
-<MapContainer coords={this.state.region} markerP={this.state.markerPosition}  
-//destinationation_coords={this.state.destinationcords} 
-/>
- <SearchboxContainer  handleInputChange={this.displayPredictions.bind(this)}  
-   originName={this.state.origin}
-   destinationName={this.state.destination}
-   displayFare={(displayFare) => {this.setState({...this.state, displayFare: displayFare})}}  
-/>
+       else{
+      return(
+      <Drawer  
+        ref={(ref) => { this.drawer = ref;}}
+        content={<Sidebar  name={customerInfo.fullName} />}
+        onClose={()=> this.closeDrawer()} 
+      >
+      <View style={{flex:1}}>
+        <AppHeader  openDrawer={this.openDrawer.bind(this)}
+      />
+      <View style={{flex:1}}>
+        <MapContainer 
+          coords={this.state.region} 
+          markerP={this.state.markerPosition}
+          destinationation_coords={this.state.destinationcords} 
+      />
+       
+       <SearchboxContainer  
+         handleInputChange={this.displayPredictions.bind(this)}  
+         originName={this.state.origin}
+         destinationName={this.state.destination}
+         displayFare={(displayFare) => {this.setState({...this.state, displayFare: displayFare})}}  
+      />
 
-{ 
-  this.state.predictions.length > 0 && 
-  <Autoplacesuggestion predictions={this.state.predictions} handleSelectedItem={this.selectedAddress.bind(this)}  /> 
+      { 
+        this.state.predictions.length > 0 && 
+        <Autoplacesuggestion 
+          predictions={this.state.predictions} 
+          handleSelectedItem={this.selectedAddress.bind(this)}  
+        /> 
+      }
+
+      {
+        this.state.displayFare && this.state.totalfare.length > 0 &&
+        <BookingContainer  
+         thefare={this.state.totalfare}  
+         onPressAction={()=> {this.findDriver()}}  
+         selectedValue={this.state.selected} 
+         onValueChange={this.onValueChange.bind(this)}
+         />
+      }
+      </View>
+      </View>
+      </Drawer>
+      );}
+
+
 }
-
-{
-  this.state.displayFare && this.state.totalfare.length > 0 &&
-  <BookingContainer  thefare={this.state.totalfare}  
-   onPressAction={()=> {this.findDriver()}}  
-   selectedValue={this.state.selected} onValueChange={this.onValueChange.bind(this)}
-   />
 }
-
-</View>
-);}
-
-
-}
-}
-
-
-ws.on("connect", ()=>{
-      console.log('customer connected to server');  
-});
 
 module.exports = CustomerHome;
 
-
-
-
-//d_coords={this.state.driver_info.location}
 

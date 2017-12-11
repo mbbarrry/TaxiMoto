@@ -35,20 +35,28 @@ const MapContainer=(props)=>(
         rotateEnabled={true}
       >
     
-      <MapView.Marker
-          coordinate={props.markerP}
-          pinColor="red"
-       />
-      
+       <MapView.Marker
+          coordinate={props.coords}
+          pinColor="green"
+        />
+
+
+    {
+      props.destinationation_coords.length > 0 && 
+       <MapView.Marker
+          coordinate={props.destinationcords}
+          pinColor="blue"
+        />
+    }
+
    </MapView>
 </View>
 
 )
+ 
+ 
 
 const styles=StyleSheet.create({
- container:{
-    flex:1
-  },
  map:{
   position:'absolute',
   ...StyleSheet.absoluteFillObject
@@ -56,13 +64,3 @@ const styles=StyleSheet.create({
 });
 
 module.exports= MapContainer;
-
-
-
-// {
-//       props.destinationation_coords.lat !==null &&
-//       <MapView.Marker
-//           coordinate={props.destinationation_coords}
-//           pinColor="green"
-//           />
-//       }

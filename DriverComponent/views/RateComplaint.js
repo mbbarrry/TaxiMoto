@@ -47,7 +47,7 @@ const RateComplaints=(props)=>(
         />
       </View>
       <View style={{alignItems:'center', justifyContent:'center', marginTop: 30}}>
-        <Button style={{alignItems:'center', justifyContent:'center', backgroundColor:'rgb(39, 174, 96)', borderRadius:5, width:width*0.5}}>
+        <Button  onPress={props.onSubmit}   style={{alignItems:'center', justifyContent:'center', backgroundColor:'rgb(39, 174, 96)', borderRadius:5, width:width*0.5}}>
           <Text style={{color:'white', fontSize:17}}>Submit</Text>
         </Button>
         </View>
